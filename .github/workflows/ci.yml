@@ -28,11 +28,15 @@ jobs:
         run: |
           cd telegrambot
           go get -v -t -d ./...
-      - name: Build
+      - name: Vet checks
         run: |
           cd telegrambot
-          go build -v ./...
+          go vet -v ./...
       - name: Test
         run: |
           cd telegrambot
           go test -v ./...
+      - name: Build
+        run: |
+          cd telegrambot
+          go build -v ./...

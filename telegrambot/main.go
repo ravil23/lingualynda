@@ -2,15 +2,14 @@ package main
 
 import (
 	"log"
-	"os"
 
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/ravil23/lingualynda/telegrambot/dao"
+	"github.com/ravil23/lingualynda/telegrambot/postgres"
+	"github.com/ravil23/lingualynda/telegrambot/telegram"
 )
 
-const timeout = 10
-
 type Bot struct {
-	api *tgbotapi.BotAPI
+	api telegram.API
 }
 
 func NewBot() *Bot {
@@ -19,38 +18,21 @@ func NewBot() *Bot {
 
 func (b *Bot) Init() {
 	log.Printf("Bot is initializing...")
-	var err error
-	b.api, err = tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
-	if err != nil {
-		log.Panicf("PANIC: %v", err)
+	conn := postgres.NewConnection()
+	if api, err := telegram.NewAPI(conn); err != nil {
+		log.Panic(err)
+	} else {
+		b.api = api
 	}
-	log.Printf("Authorized on account %s", b.api.Self.UserName)
 }
 
 func (b *Bot) Run() {
 	log.Print("Bot is running...")
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = timeout
-
-	updates, err := b.api.GetUpdatesChan(u)
-	if err != nil {
-		log.Panicf("PANIC: %v", err)
+	handlerFunc := func(message *dao.Message) error {
+		return b.api.Reply(message, message.Text)
 	}
-
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		_, err = b.api.Send(msg)
-		if err != nil {
-			log.Printf("ERROR: %v", err)
-		}
+	if err := b.api.ListenMessages(handlerFunc); err != nil {
+		log.Panic(err)
 	}
 }
 
