@@ -1,4 +1,4 @@
-package telegrambot
+package main
 
 import (
 	"log"
@@ -52,4 +52,10 @@ func (b *Bot) Run() {
 			log.Printf("ERROR: %v", err)
 		}
 	}
+}
+
+func main() {
+	bot := NewBot()
+	bot.Init()
+	bot.Run()
 }

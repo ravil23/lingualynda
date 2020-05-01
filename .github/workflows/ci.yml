@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/ci.yml'
-      - 'bot/**'
+      - 'telegrambot/**'
       - '!README.md'
 
 jobs:
@@ -26,13 +26,13 @@ jobs:
         uses: actions/checkout@v1
       - name: Get dependencies
         run: |
-          cd bot
+          cd telegrambot
           go get -v -t -d ./...
       - name: Build
         run: |
-          cd bot
+          cd telegrambot
           go build -v ./...
       - name: Test
         run: |
-          cd bot
+          cd telegrambot
           go test -v ./...
