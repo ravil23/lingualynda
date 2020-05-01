@@ -1,6 +1,15 @@
 version: "3.7"
+
 services:
+
+  db:
+    image: postgres:12.2-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+
   telegrambot:
     build: ./telegrambot
+    restart: always
     environment:
       BOT_TOKEN: "${BOT_TOKEN}"
