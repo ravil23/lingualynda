@@ -22,7 +22,7 @@ func (b *Bot) Init() {
 	var err error
 	b.api, err = tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
-		log.Panic(err)
+		log.Panicf("PANIC: %v", err)
 	}
 	log.Printf("Authorized on account %s", b.api.Self.UserName)
 }
@@ -34,7 +34,7 @@ func (b *Bot) Run() {
 
 	updates, err := b.api.GetUpdatesChan(u)
 	if err != nil {
-		log.Panic(err)
+		log.Panicf("PANIC: %v", err)
 	}
 
 	for update := range updates {
