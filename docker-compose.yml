@@ -2,14 +2,24 @@ version: "3.7"
 
 services:
 
-  db:
-    image: postgres:12.2-alpine
+  postgres:
+    build: ./postgres
+    container_name: postgres
     restart: always
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
 
   telegrambot:
     build: ./telegrambot
+    container_name: telegrambot
+    depends_on:
+      - postgres
     restart: always
     environment:
+      POSTGRES_ADDRESS: "postgres:5432"
+      POSTGRES_DATABASE: "lingualynda"
+      POSTGRES_USER: "lingualynda"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       BOT_TOKEN: "${BOT_TOKEN}"
