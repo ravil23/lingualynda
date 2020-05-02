@@ -25,8 +25,9 @@ func NewBot() *Bot {
 func (b *Bot) Init() {
 	log.Printf("Bot is initializing...")
 	conn := postgres.NewConnection()
+	botToken := telegram.GetBotTokenOrPanic()
 	for i := 1; i <= maxRetriesCount; i++ {
-		if api, err := telegram.NewAPI(conn); err != nil {
+		if api, err := telegram.NewAPI(botToken, conn); err != nil {
 			log.Printf("Attempt %d failed: %v", i, err)
 			time.Sleep(retryPeriod)
 		} else {

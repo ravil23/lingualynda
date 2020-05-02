@@ -25,11 +25,7 @@ type api struct {
 	messageDAO dao.MessageDAO
 }
 
-func NewAPI(conn *postgres.Connection) (*api, error) {
-	botToken := os.Getenv("BOT_TOKEN")
-	if botToken == "" {
-		return nil, os.ErrInvalid
-	}
+func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 	botAPI, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
 		return nil, err
@@ -82,4 +78,12 @@ func (api *api) Reply(message *dao.Message, text string) error {
 	replicationMessage.ReplyToMessageID = message.ID
 	_, err := api.botAPI.Send(replicationMessage)
 	return err
+}
+
+func GetBotTokenOrPanic() string {
+	botToken := os.Getenv("BOT_TOKEN")
+	if botToken == "" {
+		log.Panic("bot token is empty")
+	}
+	return botToken
 }
