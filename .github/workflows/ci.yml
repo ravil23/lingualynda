@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     paths:
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/cd.yml'
       - 'telegrambot/**'
       - '!README.md'
 
