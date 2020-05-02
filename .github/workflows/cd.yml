@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - '.github/workflows/cd.yml'
       - 'telegrambot/**'
       - '!README.md'
 
