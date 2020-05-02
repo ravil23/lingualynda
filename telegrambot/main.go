@@ -43,13 +43,17 @@ func (b *Bot) Init() {
 
 func (b *Bot) HealthCheck() {
 	go func() {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		address := ":8080"
+		path := "/healthcheck"
+		http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			log.Printf("%s request to %s%s with User-Agent: %s", r.Method, r.Host, r.URL, r.UserAgent())
 			_, _ = fmt.Fprint(w, `{"status": "ok"}`)
 		})
-		address := ":80"
-		log.Printf("Listening health check on address %s", address)
-		log.Fatal(http.ListenAndServe(address, nil))
+		log.Printf("Listening health check on address %s%s", address, path)
+		err := http.ListenAndServe(address, nil)
+		if err != nil {
+			log.Panic(err)
+		}
 	}()
 }
 
