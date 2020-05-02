@@ -1,4 +1,5 @@
-![CI](https://github.com/ravil23/lingualynda/workflows/CI/badge.svg)
+![CI](https://github.com/ravil23/lingualynda/workflows/CI/badge.svg?branch=master)
+![CD](https://github.com/ravil23/lingualynda/workflows/CD/badge.svg?branch=master)
 
 # Lingua Lynda
 AI powered dialog system for learning languages
