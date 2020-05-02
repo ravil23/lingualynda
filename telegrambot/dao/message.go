@@ -1,20 +1,26 @@
 package dao
 
 import (
+	"encoding/json"
+
 	"github.com/go-pg/pg/v9/orm"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
 type Message struct {
-	ID     int
-	ChatID int64
-	Author string
-	Text   string
+	ID        int
+	Timestamp int
+	ChatID    int64
+	UserID    int
+	UserName  string
+	Text      string
+	Dump      string
 }
 
 type MessageDAO interface {
-	CreateMessage(id int, chatID int64, author string, text string) (*Message, error)
+	CreateMessage(message *tgbotapi.Message) (*Message, error)
 }
 
 var _ MessageDAO = (*messageDAO)(nil)
@@ -40,12 +46,19 @@ func (dao *messageDAO) ensureSchema() error {
 	return dao.conn.CreateTable((*Message)(nil), options)
 }
 
-func (dao *messageDAO) CreateMessage(id int, chatID int64, author string, text string) (*Message, error) {
+func (dao *messageDAO) CreateMessage(msg *tgbotapi.Message) (*Message, error) {
+	dump, err := json.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
 	message := &Message{
-		ID:     id,
-		ChatID: chatID,
-		Author: author,
-		Text:   text,
+		ID:        msg.MessageID,
+		Timestamp: msg.Date,
+		ChatID:    msg.Chat.ID,
+		UserID:    msg.From.ID,
+		UserName:  msg.From.UserName,
+		Text:      msg.Text,
+		Dump:      string(dump),
 	}
 	if err := dao.conn.Insert(message); err != nil {
 		return nil, err

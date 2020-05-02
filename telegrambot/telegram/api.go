@@ -52,17 +52,11 @@ func (api *api) ListenMessages(handlerFunc func(message *dao.Message) error) err
 		return err
 	}
 	for update := range updates {
-		msg := update.Message
-		if msg == nil {
+		if update.Message == nil {
 			return nil
 		}
-		log.Printf("[%s] %s", msg.From.UserName, msg.Text)
-		message, err := api.messageDAO.CreateMessage(
-			msg.MessageID,
-			msg.Chat.ID,
-			msg.From.UserName,
-			msg.Text,
-		)
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		message, err := api.messageDAO.CreateMessage(update.Message)
 		if err != nil {
 			return err
 		}
