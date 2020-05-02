@@ -60,7 +60,7 @@ func (b *Bot) HealthCheck() {
 func (b *Bot) Run() {
 	log.Print("Bot is running...")
 	handlerFunc := func(message *dao.Message) error {
-		return b.api.Reply(message, message.Text)
+		return b.api.SendRandomQuiz(message.ChatID)
 	}
 	if err := b.api.ListenMessages(handlerFunc); err != nil {
 		log.Panic(err)

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
@@ -16,6 +16,7 @@ type API interface {
 	GetNickName() string
 	ListenMessages(handlerFunc func(message *dao.Message) error) error
 	Reply(message *dao.Message, text string) error
+	SendRandomQuiz(chatID int64) error
 }
 
 var _ API = (*api)(nil)
@@ -47,10 +48,7 @@ func (api *api) GetNickName() string {
 func (api *api) ListenMessages(handlerFunc func(message *dao.Message) error) error {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = timeout
-	updates, err := api.botAPI.GetUpdatesChan(u)
-	if err != nil {
-		return err
-	}
+	updates := api.botAPI.GetUpdatesChan(u)
 	for update := range updates {
 		if update.Message == nil {
 			return nil
@@ -71,6 +69,15 @@ func (api *api) Reply(message *dao.Message, text string) error {
 	replicationMessage := tgbotapi.NewMessage(message.ChatID, text)
 	replicationMessage.ReplyToMessageID = message.ID
 	_, err := api.botAPI.Send(replicationMessage)
+	return err
+}
+
+func (api *api) SendRandomQuiz(chatID int64) error {
+	question := "Are you ready?"
+	poll := tgbotapi.NewPoll(chatID, question, "Yes", "No")
+	poll.CorrectOptionID = 0
+	poll.Type = "quiz"
+	_, err := api.botAPI.Send(poll)
 	return err
 }
 

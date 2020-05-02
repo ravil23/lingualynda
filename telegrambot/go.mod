@@ -4,6 +4,5 @@ go 1.13
 
 require (
 	github.com/go-pg/pg/v9 v9.1.6
-	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
-	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.0.0-rc1.0.20200424181826-774f1e72e764
 )
