@@ -1,0 +1,29 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'telegrambot/**'
+      - '!README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login to Heroku Container registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:login
+      - name: Build and push
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run:
+          - cd telegrambot
+          - heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} telegrambot
+      - name: Release
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} telegrambot

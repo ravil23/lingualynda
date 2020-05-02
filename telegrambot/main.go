@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/ravil23/lingualynda/telegrambot/dao"
@@ -39,6 +41,18 @@ func (b *Bot) Init() {
 	log.Panic("max retries count exceeded")
 }
 
+func (b *Bot) HealthCheck() {
+	go func() {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			log.Printf("%s request to %s%s with User-Agent: %s", r.Method, r.Host, r.URL, r.UserAgent())
+			_, _ = fmt.Fprint(w, `{"status": "ok"}`)
+		})
+		address := ":80"
+		log.Printf("Listening health check on address %s", address)
+		log.Fatal(http.ListenAndServe(address, nil))
+	}()
+}
+
 func (b *Bot) Run() {
 	log.Print("Bot is running...")
 	handlerFunc := func(message *dao.Message) error {
@@ -52,5 +66,6 @@ func (b *Bot) Run() {
 func main() {
 	bot := NewBot()
 	bot.Init()
+	bot.HealthCheck()
 	bot.Run()
 }
