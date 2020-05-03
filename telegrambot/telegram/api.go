@@ -22,11 +22,13 @@ type API interface {
 var _ API = (*api)(nil)
 
 type api struct {
-	botAPI        *tgbotapi.BotAPI
-	messageDAO    dao.MessageDAO
-	pollDAO       dao.PollDAO
-	pollAnswerDAO dao.PollAnswerDAO
-	userDAO       dao.UserDAO
+	botAPI              *tgbotapi.BotAPI
+	messageDAO          dao.MessageDAO
+	pollDAO             dao.PollDAO
+	pollAnswerDAO       dao.PollAnswerDAO
+	userDAO             dao.UserDAO
+	linkUserQuestionDAO dao.LinkUserQuestionDAO
+	questionDAO         dao.QuestionDAO
 
 	messagesHandler    func(update *tgbotapi.Update) error
 	pollAnswersHandler func(update *tgbotapi.Update) error
@@ -38,6 +40,10 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 		return nil, err
 	}
 	userDAO, err := dao.NewUserDAO(conn)
+	if err != nil {
+		return nil, err
+	}
+	questionDAO, err := dao.NewQuestionDAO(conn)
 	if err != nil {
 		return nil, err
 	}
@@ -53,12 +59,18 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 	if err != nil {
 		return nil, err
 	}
+	linkUserQuestionDAO, err := dao.NewLinkUserQuestionDAO(conn)
+	if err != nil {
+		return nil, err
+	}
 	return &api{
-		botAPI:        botAPI,
-		messageDAO:    messageDAO,
-		pollDAO:       pollDAO,
-		pollAnswerDAO: pollAnswerDAO,
-		userDAO:       userDAO,
+		botAPI:              botAPI,
+		messageDAO:          messageDAO,
+		pollDAO:             pollDAO,
+		pollAnswerDAO:       pollAnswerDAO,
+		userDAO:             userDAO,
+		linkUserQuestionDAO: linkUserQuestionDAO,
+		questionDAO:         questionDAO,
 	}, nil
 }
 
@@ -66,12 +78,11 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 	api.messagesHandler = func(update *tgbotapi.Update) error {
 		user := dao.NewUser(update.Message.From)
 		user.ChatID = dao.ChatID(update.Message.Chat.ID)
-		user, err := api.userDAO.Upsert(user)
-		if err != nil {
+		if err := api.userDAO.Upsert(user); err != nil {
 			return err
 		}
 		message := dao.NewMessage(update.Message, user)
-		message, err = api.messageDAO.Upsert(message)
+		message, err := api.messageDAO.Upsert(message)
 		if err != nil {
 			return err
 		}
@@ -136,13 +147,30 @@ func (api *api) SendNextPoll(user *dao.User) error {
 }
 
 func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
+	question := &dao.Question{
+		ID:   1,
+		Text: "Are you ready?",
+		Options: []dao.Option{
+			{Text: "a", IsCorrect: true},
+			{Text: "b", IsCorrect: false},
+		},
+	}
+	var err error
+	question, err = api.questionDAO.Upsert(question) // TODO: remove
+	if err != nil {
+		return nil, err
+	}
+	linkUserQuestion := dao.NewLinkUserQuestion(question.ID, user.ID)
+	_, err = api.linkUserQuestionDAO.Upsert(linkUserQuestion)
+	if err != nil {
+		return nil, err
+	}
 	poll := &dao.Poll{
-		ID:              "test",
-		Type:            dao.PollTypeQuiz,
-		Question:        "Test question",
-		Options:         map[dao.PollOptionID]string{0: "a", 1: "b"},
-		CorrectOptionID: 0,
-		IsPublic:        true,
+		ID:         "test",
+		Type:       dao.PollTypeQuiz,
+		QuestionID: question.ID,
+		Question:   question,
+		IsPublic:   true,
 	}
 	return poll, nil
 }

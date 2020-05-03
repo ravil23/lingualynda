@@ -13,10 +13,10 @@ import (
 type UserID int
 
 type User struct {
-	tableName struct{} `pg:"user"`
+	tableName struct{} `pg:"user,alias:u"`
 
 	ID        UserID    `pg:"id,pk"`
-	Nick      string    `pg:"nick,notnull"`
+	NickName  string    `pg:"nick_name"`
 	FirstName string    `pg:"first_name"`
 	LastName  string    `pg:"last_name"`
 	ChatID    ChatID    `pg:"chat_id"`
@@ -27,7 +27,7 @@ type User struct {
 func NewUser(tgUser *tgbotapi.User) *User {
 	return &User{
 		ID:        UserID(tgUser.ID),
-		Nick:      tgUser.UserName,
+		NickName:  tgUser.UserName,
 		FirstName: tgUser.FirstName,
 		LastName:  tgUser.LastName,
 	}
@@ -35,7 +35,8 @@ func NewUser(tgUser *tgbotapi.User) *User {
 
 type UserDAO interface {
 	Find(userID UserID) (*User, error)
-	Upsert(user *User) (*User, error)
+	Upsert(user *User) error
+	Delete(userID UserID) error
 }
 
 var _ UserDAO = (*userDAO)(nil)
@@ -64,23 +65,31 @@ func (dao *userDAO) ensureSchema() error {
 
 func (dao *userDAO) Find(userID UserID) (*User, error) {
 	log.Printf("[user=%d] find user profile", userID)
-	user := new(User)
-	err := dao.conn.Model(user).
-		Where("id = ?", userID).
-		Select()
+	user := &User{ID: userID}
+	err := dao.conn.Select(user)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (dao *userDAO) Upsert(user *User) (*User, error) {
+func (dao *userDAO) Delete(userID UserID) error {
+	log.Printf("[user=%d] delete user profile", userID)
+	user := &User{ID: userID}
+	return dao.conn.Delete(user)
+}
+
+func (dao *userDAO) Upsert(user *User) error {
 	log.Printf("[user=%d][chat=%d] upsert user profile", user.ID, user.ChatID)
 	if _, err := dao.conn.Model(user).
-		OnConflict("(id) DO NOTHING").
+		OnConflict("(id) DO UPDATE").
+		Set("updated_at = now()").
+		Set("nick_name = coalesce(EXCLUDED.nick_name, u.nick_name)").
+		Set("first_name = coalesce(EXCLUDED.first_name, u.first_name)").
+		Set("last_name = coalesce(EXCLUDED.last_name, u.last_name)").
+		Set("chat_id = coalesce(EXCLUDED.chat_id, u.chat_id)").
 		Insert(); err != nil {
-		return nil, err
-	} else {
-		return user, nil
+		return err
 	}
+	return nil
 }
