@@ -9,6 +9,8 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-lingualynda}"
     volumes:
       - ./.data/postgres:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - postgres
     restart: unless-stopped

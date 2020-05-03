@@ -50,8 +50,7 @@ func (b *Bot) HealthCheck() {
 			_, _ = fmt.Fprint(w, `{"status": "ok"}`)
 		})
 		log.Printf("Listening health check on address %s%s", address, path)
-		err := http.ListenAndServe(address, nil)
-		if err != nil {
+		if err := http.ListenAndServe(address, nil); err != nil {
 			log.Panic(err)
 		}
 	}()
@@ -59,10 +58,13 @@ func (b *Bot) HealthCheck() {
 
 func (b *Bot) Run() {
 	log.Print("Bot is running...")
-	handlerFunc := func(message *dao.Message) error {
-		return b.api.SendRandomQuiz(message.ChatID)
-	}
-	if err := b.api.ListenMessages(handlerFunc); err != nil {
+	b.api.SetMessagesHandler(func(message *dao.Message) error {
+		return b.api.SendNextPoll(message.User)
+	})
+	b.api.SetPollAnswersHandler(func(pollAnswer *dao.PollAnswer) error {
+		return b.api.SendNextPoll(pollAnswer.User)
+	})
+	if err := b.api.ListenUpdates(); err != nil {
 		log.Panic(err)
 	}
 }

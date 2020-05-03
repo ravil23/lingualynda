@@ -1,7 +1,8 @@
 package dao
 
 import (
-	"encoding/json"
+	"log"
+	"time"
 
 	"github.com/go-pg/pg/v9/orm"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -9,18 +10,36 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
+type MessageID int
+type ChatID int64
+
 type Message struct {
-	ID        int
-	Timestamp int
-	ChatID    int64
-	UserID    int
-	UserName  string
-	Text      string
-	Dump      string
+	tableName struct{} `pg:"message"`
+
+	ID        MessageID         `pg:"id,pk"`
+	ChatID    ChatID            `pg:"chat_id,pk"`
+	Timestamp time.Time         `pg:"timestamp,notnull"`
+	Text      string            `pg:"text"`
+	Raw       *tgbotapi.Message `pg:"raw,notnull"`
+
+	UserID UserID `pg:"user_id,notnull"`
+	User   *User  `pg:"fk:user_id"`
+}
+
+func NewMessage(tgMessage *tgbotapi.Message, user *User) *Message {
+	return &Message{
+		ID:        MessageID(tgMessage.MessageID),
+		ChatID:    ChatID(tgMessage.Chat.ID),
+		Timestamp: tgMessage.Time(),
+		UserID:    user.ID,
+		User:      user,
+		Text:      tgMessage.Text,
+		Raw:       tgMessage,
+	}
 }
 
 type MessageDAO interface {
-	CreateMessage(message *tgbotapi.Message) (*Message, error)
+	Upsert(message *Message) (*Message, error)
 }
 
 var _ MessageDAO = (*messageDAO)(nil)
@@ -41,28 +60,19 @@ func NewMessageDAO(conn *postgres.Connection) (*messageDAO, error) {
 
 func (dao *messageDAO) ensureSchema() error {
 	options := &orm.CreateTableOptions{
-		IfNotExists: true,
+		IfNotExists:   true,
+		FKConstraints: true,
 	}
 	return dao.conn.CreateTable((*Message)(nil), options)
 }
 
-func (dao *messageDAO) CreateMessage(msg *tgbotapi.Message) (*Message, error) {
-	dump, err := json.Marshal(msg)
+func (dao *messageDAO) Upsert(message *Message) (*Message, error) {
+	log.Printf("[user=%d][chat=%d] recieve message %d", message.User.ID, message.ChatID, message.ID)
+	_, err := dao.conn.Model(message).
+		OnConflict("(id, chat_id) DO NOTHING").
+		Insert(message)
 	if err != nil {
 		return nil, err
 	}
-	message := &Message{
-		ID:        msg.MessageID,
-		Timestamp: msg.Date,
-		ChatID:    msg.Chat.ID,
-		UserID:    msg.From.ID,
-		UserName:  msg.From.UserName,
-		Text:      msg.Text,
-		Dump:      string(dump),
-	}
-	if err := dao.conn.Insert(message); err != nil {
-		return nil, err
-	} else {
-		return message, nil
-	}
+	return message, nil
 }
