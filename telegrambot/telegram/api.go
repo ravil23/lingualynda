@@ -2,15 +2,20 @@ package telegram
 
 import (
 	"log"
+	"math/rand"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	"github.com/ravil23/lingualynda/telegrambot/collection/paulineunit1"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
-const timeout = 10
+const (
+	timeout                 = 10
+	maxQuestionOptionsCount = 4
+)
 
 type API interface {
 	SetMessagesHandler(handlerFunc func(*dao.Message) error)
@@ -81,11 +86,12 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 		if err := api.userDAO.Upsert(user); err != nil {
 			return err
 		}
+
 		message := dao.NewMessage(update.Message, user)
-		message, err := api.messageDAO.Upsert(message)
-		if err != nil {
+		if err := api.messageDAO.Upsert(message); err != nil {
 			return err
 		}
+
 		if err := handlerFunc(message); err != nil {
 			return err
 		}
@@ -96,19 +102,15 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 func (api *api) SetPollAnswersHandler(handlerFunc func(*dao.PollAnswer) error) {
 	api.pollAnswersHandler = func(update *tgbotapi.Update) error {
 		user := dao.NewUser(&update.PollAnswer.User)
-		user, err := api.userDAO.Upsert(user)
-		if err != nil {
+		if err := api.userDAO.Upsert(user); err != nil {
 			return err
 		}
-		user, err = api.userDAO.Find(user.ID) // TODO: merge upsert and find
-		if err != nil {
-			return err
-		}
+
 		pollAnswer := dao.NewPollAnswer(update.PollAnswer, user)
-		pollAnswer, err = api.pollAnswerDAO.Upsert(pollAnswer)
-		if err != nil {
+		if err := api.pollAnswerDAO.Upsert(pollAnswer); err != nil {
 			return err
 		}
+
 		return handlerFunc(pollAnswer)
 	}
 }
@@ -138,41 +140,65 @@ func (api *api) SendNextPoll(user *dao.User) error {
 	if err != nil {
 		return err
 	}
-	if poll, err = api.pollDAO.Upsert(poll); err != nil { // FIXME: remove and write to users_poll table
-		return err
-	}
+
 	tgPoll := poll.ToChatable(user.ChatID)
 	_, err = api.botAPI.Send(tgPoll)
 	return err
 }
 
 func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
-	question := &dao.Question{
-		ID:   1,
-		Text: "Are you ready?",
-		Options: []dao.Option{
-			{Text: "a", IsCorrect: true},
-			{Text: "b", IsCorrect: false},
-		},
-	}
-	var err error
-	question, err = api.questionDAO.Upsert(question) // TODO: remove
-	if err != nil {
+	question := generateRandomQuestion()
+	if err := api.questionDAO.Upsert(question); err != nil {
 		return nil, err
 	}
+
 	linkUserQuestion := dao.NewLinkUserQuestion(question.ID, user.ID)
-	_, err = api.linkUserQuestionDAO.Upsert(linkUserQuestion)
-	if err != nil {
+	if err := api.linkUserQuestionDAO.Upsert(linkUserQuestion); err != nil {
 		return nil, err
 	}
+
 	poll := &dao.Poll{
-		ID:         "test",
 		Type:       dao.PollTypeQuiz,
 		QuestionID: question.ID,
 		Question:   question,
 		IsPublic:   true,
 	}
+	if err := api.pollDAO.Upsert(poll); err != nil {
+		return nil, err
+	}
 	return poll, nil
+}
+
+func generateRandomQuestion() *dao.Question {
+	term := paulineunit1.VocabularyTotal.GetRandomTerm()
+	correctTranslations := paulineunit1.VocabularyTotal.GetTranslations(term)
+	correctTranslation := correctTranslations[rand.Intn(len(correctTranslations))]
+	question := &dao.Question{
+		Text: term.String(),
+		Options: []dao.Option{
+			{Text: correctTranslation.String(), IsCorrect: true},
+		},
+	}
+	for len(question.Options) < maxQuestionOptionsCount {
+		randomTranslation := paulineunit1.VocabularyTotal.GetRandomTranslation()
+		isValidTranslation := true
+		for _, correctTranslation := range correctTranslations {
+			if randomTranslation == correctTranslation {
+				isValidTranslation = false
+				break
+			}
+		}
+		if isValidTranslation {
+			question.Options = append(question.Options, dao.Option{
+				Text:      randomTranslation.String(),
+				IsCorrect: false,
+			})
+		}
+	}
+	rand.Shuffle(len(question.Options), func(i, j int) {
+		question.Options[i], question.Options[j] = question.Options[j], question.Options[i]
+	})
+	return question
 }
 
 func GetBotTokenOrPanic() string {

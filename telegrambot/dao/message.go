@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-pg/pg/v9/orm"
@@ -39,7 +38,7 @@ func NewMessage(tgMessage *tgbotapi.Message, user *User) *Message {
 }
 
 type MessageDAO interface {
-	Upsert(message *Message) (*Message, error)
+	Upsert(message *Message) error
 }
 
 var _ MessageDAO = (*messageDAO)(nil)
@@ -66,13 +65,9 @@ func (dao *messageDAO) ensureSchema() error {
 	return dao.conn.CreateTable((*Message)(nil), options)
 }
 
-func (dao *messageDAO) Upsert(message *Message) (*Message, error) {
-	log.Printf("[user=%d][chat=%d] recieve message %d", message.User.ID, message.ChatID, message.ID)
+func (dao *messageDAO) Upsert(message *Message) error {
 	_, err := dao.conn.Model(message).
 		OnConflict("(id, chat_id) DO NOTHING").
-		Insert(message)
-	if err != nil {
-		return nil, err
-	}
-	return message, nil
+		Insert()
+	return err
 }

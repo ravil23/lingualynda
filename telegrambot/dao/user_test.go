@@ -89,6 +89,7 @@ func (s *UserDAOTestSuite) TestFind() {
 		s.NoError(err)
 
 		foundUser, err := s.userDAO.Find(user.ID)
+
 		s.NoError(err)
 		s.Equal(user.ID, foundUser.ID)
 		s.Equal(user.FirstName, foundUser.FirstName)
@@ -102,6 +103,15 @@ func (s *UserDAOTestSuite) TestFind() {
 }
 
 func (s *UserDAOTestSuite) TestUpsert() {
+	s.Run("InsertWithoutID", func() {
+		user := &dao.User{}
+
+		err := s.userDAO.Upsert(user)
+
+		s.NoError(err)
+		s.NotEmpty(user.ID)
+	})
+
 	s.Run("InsertNewFull", func() {
 		userID := dao.UserID(1)
 		s.deleteUser(userID)
@@ -164,7 +174,6 @@ func (s *UserDAOTestSuite) TestUpsert() {
 		user.ChatID = dao.ChatID(2)
 
 		err = s.userDAO.Upsert(user)
-		s.NoError(err)
 
 		s.NoError(err)
 		s.Equal(userID, user.ID)
@@ -194,7 +203,6 @@ func (s *UserDAOTestSuite) TestUpsert() {
 		user.ChatID = dao.ChatID(0)
 
 		err = s.userDAO.Upsert(user)
-		s.NoError(err)
 
 		s.NoError(err)
 		s.Equal(userID, user.ID)

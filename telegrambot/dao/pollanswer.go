@@ -1,21 +1,24 @@
 package dao
 
 import (
-	"log"
-
 	"github.com/go-pg/pg/v9/orm"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
+type ServerPollID string
+
+func (p ServerPollID) String() string {
+	return string(p)
+}
+
 type PollAnswer struct {
 	tableName struct{} `pg:"poll_answer"`
 
 	ChosenOptions []PollOptionID `pg:"chosen_options,array"`
 
-	PollID PollID `pg:"poll_id,pk"`
-	//Poll   *Poll  `pg:"fk:poll_id"` // TODO: uncomment
+	ServerPollID ServerPollID `pg:"server_poll_id,pk"`
 
 	UserID UserID `pg:"user_id,pk"`
 	User   *User  `pg:"fk:user_id"`
@@ -23,7 +26,7 @@ type PollAnswer struct {
 
 func NewPollAnswer(tgPollAnswer *tgbotapi.PollAnswer, user *User) *PollAnswer {
 	pollAnswer := &PollAnswer{
-		PollID:        PollID(tgPollAnswer.PollID),
+		ServerPollID:  ServerPollID(tgPollAnswer.PollID),
 		UserID:        user.ID,
 		User:          user,
 		ChosenOptions: make([]PollOptionID, 0, len(tgPollAnswer.OptionIDs)),
@@ -35,7 +38,7 @@ func NewPollAnswer(tgPollAnswer *tgbotapi.PollAnswer, user *User) *PollAnswer {
 }
 
 type PollAnswerDAO interface {
-	Upsert(pollAnswer *PollAnswer) (*PollAnswer, error)
+	Upsert(pollAnswer *PollAnswer) error
 }
 
 var _ PollAnswerDAO = (*pollAnswerDAO)(nil)
@@ -62,13 +65,9 @@ func (dao *pollAnswerDAO) ensureSchema() error {
 	return dao.conn.CreateTable((*PollAnswer)(nil), options)
 }
 
-func (dao *pollAnswerDAO) Upsert(pollAnswer *PollAnswer) (*PollAnswer, error) {
-	log.Printf("[user=%d][chat=%d] answer for poll %s", pollAnswer.UserID, pollAnswer.User.ChatID, pollAnswer.PollID)
+func (dao *pollAnswerDAO) Upsert(pollAnswer *PollAnswer) error {
 	_, err := dao.conn.Model(pollAnswer).
-		OnConflict("(user_id, poll_id) DO NOTHING").
-		Insert(pollAnswer)
-	if err != nil {
-		return nil, err
-	}
-	return pollAnswer, nil
+		OnConflict("(user_id, server_poll_id) DO NOTHING").
+		Insert()
+	return err
 }

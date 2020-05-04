@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-pg/pg/v9/orm"
@@ -26,7 +25,7 @@ func NewLinkUserQuestion(questionID QuestionID, userID UserID) *LinkUserQuestion
 }
 
 type LinkUserQuestionDAO interface {
-	Upsert(userQuestionLink *LinkUserQuestion) (*LinkUserQuestion, error)
+	Upsert(userQuestionLink *LinkUserQuestion) error
 }
 
 var _ LinkUserQuestionDAO = (*userQuestionLinkDAO)(nil)
@@ -53,13 +52,9 @@ func (dao *userQuestionLinkDAO) ensureSchema() error {
 	return dao.conn.CreateTable((*LinkUserQuestion)(nil), options)
 }
 
-func (dao *userQuestionLinkDAO) Upsert(linkUserQuestion *LinkUserQuestion) (*LinkUserQuestion, error) {
-	log.Printf("[user=%d] send question %s", linkUserQuestion.UserID, linkUserQuestion.QuestionID)
+func (dao *userQuestionLinkDAO) Upsert(linkUserQuestion *LinkUserQuestion) error {
 	_, err := dao.conn.Model(linkUserQuestion).
 		OnConflict("(timestamp, user_id, question_id) DO NOTHING").
-		Insert(linkUserQuestion)
-	if err != nil {
-		return nil, err
-	}
-	return linkUserQuestion, nil
+		Insert()
+	return err
 }

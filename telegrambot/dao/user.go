@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-pg/pg/v9/orm"
@@ -64,7 +63,6 @@ func (dao *userDAO) ensureSchema() error {
 }
 
 func (dao *userDAO) Find(userID UserID) (*User, error) {
-	log.Printf("[user=%d] find user profile", userID)
 	user := &User{ID: userID}
 	err := dao.conn.Select(user)
 	if err != nil {
@@ -74,22 +72,18 @@ func (dao *userDAO) Find(userID UserID) (*User, error) {
 }
 
 func (dao *userDAO) Delete(userID UserID) error {
-	log.Printf("[user=%d] delete user profile", userID)
 	user := &User{ID: userID}
 	return dao.conn.Delete(user)
 }
 
 func (dao *userDAO) Upsert(user *User) error {
-	log.Printf("[user=%d][chat=%d] upsert user profile", user.ID, user.ChatID)
-	if _, err := dao.conn.Model(user).
+	_, err := dao.conn.Model(user).
 		OnConflict("(id) DO UPDATE").
 		Set("updated_at = now()").
 		Set("nick_name = coalesce(EXCLUDED.nick_name, u.nick_name)").
 		Set("first_name = coalesce(EXCLUDED.first_name, u.first_name)").
 		Set("last_name = coalesce(EXCLUDED.last_name, u.last_name)").
 		Set("chat_id = coalesce(EXCLUDED.chat_id, u.chat_id)").
-		Insert(); err != nil {
-		return err
-	}
-	return nil
+		Insert()
+	return err
 }

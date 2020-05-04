@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"log"
+	"time"
 
 	"github.com/go-pg/pg/v9/orm"
 
@@ -22,13 +22,17 @@ type Option struct {
 type Question struct {
 	tableName struct{} `pg:"question"`
 
-	ID      QuestionID `pg:"id,pk"`
-	Text    string     `pg:"text,notnull"`
-	Options []Option   `pg:"options,array"`
+	ID        QuestionID `pg:"id,pk"`
+	Text      string     `pg:"text,notnull"`
+	Options   []Option   `pg:"options,array"`
+	CreatedAt time.Time  `pg:"created_at,default:now()"`
+	UpdatedAt time.Time  `pg:"updated_at,default:now()"`
 }
 
 type QuestionDAO interface {
-	Upsert(question *Question) (*Question, error)
+	Find(questionID QuestionID) (*Question, error)
+	Delete(questionID QuestionID) error
+	Upsert(question *Question) error
 }
 
 var _ QuestionDAO = (*questionDAO)(nil)
@@ -55,13 +59,26 @@ func (dao *questionDAO) ensureSchema() error {
 	return dao.conn.CreateTable((*Question)(nil), options)
 }
 
-func (dao *questionDAO) Upsert(question *Question) (*Question, error) {
-	log.Printf("add question %d", question.ID)
-	_, err := dao.conn.Model(question).
-		OnConflict("(id) DO NOTHING").
-		Insert(question)
+func (dao *questionDAO) Find(questionID QuestionID) (*Question, error) {
+	question := &Question{ID: questionID}
+	err := dao.conn.Select(question)
 	if err != nil {
 		return nil, err
 	}
 	return question, nil
+}
+
+func (dao *questionDAO) Delete(questionID QuestionID) error {
+	question := &Question{ID: questionID}
+	return dao.conn.Delete(question)
+}
+
+func (dao *questionDAO) Upsert(question *Question) error {
+	_, err := dao.conn.Model(question).
+		OnConflict("(id) DO UPDATE").
+		Set("updated_at = now()").
+		Set("text = EXCLUDED.text").
+		Set("options = EXCLUDED.options").
+		Insert()
+	return err
 }
