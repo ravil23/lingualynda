@@ -7,6 +7,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	"github.com/ravil23/lingualynda/telegrambot/collection"
 	"github.com/ravil23/lingualynda/telegrambot/collection/paulineunit1"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
@@ -180,7 +181,7 @@ func generateRandomQuestion() *dao.Question {
 		},
 	}
 	for len(question.Options) < maxQuestionOptionsCount {
-		randomTranslation := paulineunit1.VocabularyTotal.GetRandomTranslation()
+		randomTranslation := collection.VocabularyTotal.GetRandomTranslation()
 		isValidTranslation := true
 		for _, correctTranslation := range correctTranslations {
 			if randomTranslation == correctTranslation {

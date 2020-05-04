@@ -1,29 +1,29 @@
 package paulineunit1
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection"
+	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 )
 
-var VocabularyAdjectives = collection.NewVocabulary(
-	map[collection.Term][]collection.Translation{
+var VocabularyAdjectives = schema.NewVocabulary(
+	map[schema.Term][]schema.Translation{
 		"apprehensive": {"опасающийся", "боязливый"},
 		"assertive":    {"напористый", "настойчивый"},
 		"clumzy":       {"неуклюжий", "неловкий"},
 	},
 )
 
-var VocabularyNouns = collection.NewVocabulary(
-	map[collection.Term][]collection.Translation{
+var VocabularyNouns = schema.NewVocabulary(
+	map[schema.Term][]schema.Translation{
 		"adolescent":     {"подросток", "отрок"},
 		"characteristic": {"характеристика", "особенность", "свойство", "признак", "черта", "качество"},
 		"trait":          {"черта", "признак", "особенность", "свойство"},
 	},
 )
 
-var VocabularyTotal *collection.Vocabulary
+var VocabularyTotal *schema.Vocabulary
 
 func init() {
-	VocabularyTotal = collection.NewEmptyVocabulary().
+	VocabularyTotal = schema.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns)
 }

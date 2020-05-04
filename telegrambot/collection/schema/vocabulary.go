@@ -1,4 +1,4 @@
-package collection
+package schema
 
 import (
 	"math/rand"
@@ -17,7 +17,7 @@ func (t Translation) String() string {
 }
 
 type Vocabulary struct {
-	collection map[Term][]Translation
+	translationsToRussian map[Term][]Translation
 
 	allTerms        []Term
 	allTranslations []Translation
@@ -25,15 +25,15 @@ type Vocabulary struct {
 
 func NewEmptyVocabulary() *Vocabulary {
 	return &Vocabulary{
-		collection: make(map[Term][]Translation),
+		translationsToRussian: make(map[Term][]Translation),
 	}
 }
 
 func NewVocabulary(collection map[Term][]Translation) *Vocabulary {
 	v := &Vocabulary{
-		collection:      collection,
-		allTerms:        make([]Term, 0, len(collection)),
-		allTranslations: make([]Translation, 0, len(collection)),
+		translationsToRussian: collection,
+		allTerms:              make([]Term, 0, len(collection)),
+		allTranslations:       make([]Translation, 0, len(collection)),
 	}
 	for term, translations := range collection {
 		v.allTerms = append(v.allTerms, term)
@@ -47,7 +47,7 @@ func (v *Vocabulary) GetRandomTerm() Term {
 }
 
 func (v *Vocabulary) GetTranslations(term Term) []Translation {
-	return v.collection[term]
+	return v.translationsToRussian[term]
 }
 
 func (v *Vocabulary) GetRandomTranslation() Translation {
@@ -55,8 +55,8 @@ func (v *Vocabulary) GetRandomTranslation() Translation {
 }
 
 func (v *Vocabulary) Update(other *Vocabulary) *Vocabulary {
-	for term, translations := range other.collection {
-		v.collection[term] = translations
+	for term, translations := range other.translationsToRussian {
+		v.translationsToRussian[term] = translations
 	}
 	v.allTerms = append(v.allTerms, other.allTerms...)
 	v.allTranslations = append(v.allTranslations, other.allTranslations...)
