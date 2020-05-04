@@ -57,7 +57,7 @@ func (b *Bot) HealthCheck() {
 }
 
 func (b *Bot) Run() {
-	log.Print("Bot is running...")
+	b.api.SendAlert("Bot is running...")
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
 		return b.api.SendNextPoll(message.User)
 	})

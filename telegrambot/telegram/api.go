@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -16,6 +17,9 @@ import (
 const (
 	timeout                 = 10
 	maxQuestionOptionsCount = 4
+	alertsChatID            = -1001142742669
+	botNickName             = "LinguaLyndaBot"
+	botMention              = "@" + botNickName
 )
 
 type API interface {
@@ -23,11 +27,14 @@ type API interface {
 	SetPollAnswersHandler(handlerFunc func(*dao.PollAnswer) error)
 	ListenUpdates() error
 	SendNextPoll(user *dao.User) error
+	SendAlert(text string)
 }
 
 var _ API = (*api)(nil)
 
 type api struct {
+	hostName string
+
 	botAPI              *tgbotapi.BotAPI
 	messageDAO          dao.MessageDAO
 	pollDAO             dao.PollDAO
@@ -41,6 +48,10 @@ type api struct {
 }
 
 func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
+	hostName, err := os.Hostname()
+	if err != nil {
+		hostName = "unknown_host"
+	}
 	botAPI, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
 		return nil, err
@@ -70,6 +81,8 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 		return nil, err
 	}
 	return &api{
+		hostName: hostName,
+
 		botAPI:              botAPI,
 		messageDAO:          messageDAO,
 		pollDAO:             pollDAO,
@@ -86,6 +99,10 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 		user.ChatID = dao.ChatID(update.Message.Chat.ID)
 		if err := api.userDAO.Upsert(user); err != nil {
 			return err
+		}
+
+		if update.Message.Command() == "start" {
+			api.SendAlert(fmt.Sprintf("@%s started conversation with %s", user.NickName, botMention))
 		}
 
 		message := dao.NewMessage(update.Message, user)
@@ -200,6 +217,15 @@ func generateRandomQuestion() *dao.Question {
 		question.Options[i], question.Options[j] = question.Options[j], question.Options[i]
 	})
 	return question
+}
+
+func (api *api) SendAlert(text string) {
+	log.Print(text)
+	tgMessage := tgbotapi.NewMessage(alertsChatID, fmt.Sprintf("[%s] %s", api.hostName, text))
+	_, err := api.botAPI.Send(tgMessage)
+	if err != nil {
+		log.Printf("Error on sending alert: %s", err)
+	}
 }
 
 func GetBotTokenOrPanic() string {
