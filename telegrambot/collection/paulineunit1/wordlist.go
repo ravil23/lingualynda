@@ -8,7 +8,7 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	map[schema.Term][]schema.Translation{
 		"apprehensive":        {"опасающийся", "боязливый"},
 		"assertive":           {"напористый", "настойчивый"},
-		"clumzy":              {"неуклюжий", "неловкий"},
+		"clumsy":              {"неуклюжий", "неловкий"},
 		"cynical":             {"циничный"},
 		"desirable":           {"желательный", "целесообразный"},
 		"eccentric":           {"эксцентричный", "чудаковатый"},
