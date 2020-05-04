@@ -35,7 +35,9 @@ var _ API = (*api)(nil)
 type api struct {
 	hostName string
 
-	botAPI              *tgbotapi.BotAPI
+	tgAPI     *tgbotapi.BotAPI
+	tgUpdates tgbotapi.UpdatesChannel
+
 	messageDAO          dao.MessageDAO
 	pollDAO             dao.PollDAO
 	pollAnswerDAO       dao.PollAnswerDAO
@@ -52,10 +54,16 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 	if err != nil {
 		hostName = "unknown_host"
 	}
+
 	botAPI, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
 		return nil, err
 	}
+
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = timeout
+	tgUpdates := botAPI.GetUpdatesChan(u)
+
 	userDAO, err := dao.NewUserDAO(conn)
 	if err != nil {
 		return nil, err
@@ -81,9 +89,10 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 		return nil, err
 	}
 	return &api{
-		hostName: hostName,
+		hostName:  hostName,
+		tgUpdates: tgUpdates,
 
-		botAPI:              botAPI,
+		tgAPI:               botAPI,
 		messageDAO:          messageDAO,
 		pollDAO:             pollDAO,
 		pollAnswerDAO:       pollAnswerDAO,
@@ -134,10 +143,7 @@ func (api *api) SetPollAnswersHandler(handlerFunc func(*dao.PollAnswer) error) {
 }
 
 func (api *api) ListenUpdates() error {
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = timeout
-	updates := api.botAPI.GetUpdatesChan(u)
-	for update := range updates {
+	for update := range api.tgUpdates {
 		if update.Message != nil {
 			if err := api.messagesHandler(&update); err != nil {
 				return err
@@ -160,7 +166,7 @@ func (api *api) SendNextPoll(user *dao.User) error {
 	}
 
 	tgPoll := poll.ToChatable(user.ChatID)
-	_, err = api.botAPI.Send(tgPoll)
+	_, err = api.tgAPI.Send(tgPoll)
 	return err
 }
 
@@ -222,7 +228,7 @@ func generateRandomQuestion() *dao.Question {
 func (api *api) SendAlert(text string) {
 	log.Print(text)
 	tgMessage := tgbotapi.NewMessage(alertsChatID, fmt.Sprintf("[%s] %s", api.hostName, text))
-	_, err := api.botAPI.Send(tgMessage)
+	_, err := api.tgAPI.Send(tgMessage)
 	if err != nil {
 		log.Printf("Error on sending alert: %s", err)
 	}

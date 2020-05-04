@@ -58,6 +58,11 @@ func (b *Bot) HealthCheck() {
 
 func (b *Bot) Run() {
 	b.api.SendAlert("Bot is running...")
+	defer func() {
+		if r := recover(); r != nil {
+			b.api.SendAlert(fmt.Sprintf("Recovered from panic: %s", r))
+		}
+	}()
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
 		return b.api.SendNextPoll(message.User)
 	})
@@ -73,5 +78,7 @@ func main() {
 	bot := NewBot()
 	bot.Init()
 	bot.HealthCheck()
-	bot.Run()
+	for {
+		bot.Run()
+	}
 }
