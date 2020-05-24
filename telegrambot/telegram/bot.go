@@ -28,7 +28,7 @@ const helpText = `**Vocabularies**
 /eng2rus \- Only English to Russian tasks
 /random \- Select random task for both side
 
-**Tap to /next for getting new poll.**`
+**Tap to /next for getting new poll**`
 
 type Bot struct {
 	api API
