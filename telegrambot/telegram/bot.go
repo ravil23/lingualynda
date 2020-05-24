@@ -124,6 +124,14 @@ func (b *Bot) Run() {
 				selectedVocabularies[message.ChatID] = phrasalverbs.AllVocabularies
 			}
 		}
+		listOfVocabularies := selectedVocabularies[message.ChatID]
+		debug := fmt.Sprintf("Selected mode: %s", selectedMode)
+		debug += fmt.Sprintf("\nSelected vocabulary: %v", listOfVocabularies)
+		for _, vocabulary := range listOfVocabularies {
+			term := vocabulary.GetRandomTerm()
+			debug += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
+		}
+		b.api.SendAlert(debug)
 		return b.api.SendNextPoll(message.User)
 	})
 	b.api.SetPollAnswersHandler(func(pollAnswer *dao.PollAnswer) error {
