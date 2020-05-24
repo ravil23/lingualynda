@@ -29,7 +29,9 @@ const helpText = `Vocabularies:
 Modes:
 /rus2eng - Use only tasks for translation from Russian to English
 /eng2rus - Use only tasks for translation from English to Russian
-/random - Select random task for both side`
+/random - Select random task for both side
+
+Type any message for getting next poll.`
 
 type Bot struct {
 	api API
@@ -79,7 +81,7 @@ func (b *Bot) Run() {
 		}
 	}()
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
-		if message.Text == "/help" {
+		if message.Text == "/help" || message.Text == "/start" {
 			b.api.SendMessage(message.ChatID, helpText)
 			return nil
 		}
