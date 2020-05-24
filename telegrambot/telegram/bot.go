@@ -19,14 +19,14 @@ const (
 )
 
 const helpText = `**Vocabularies**
-/all - Use total vocabulary
-/phrasalverbs - Use only phrasal verbs
-/pauline - Use only words from *Vocabulary for IELTS Advanced - Pauline Cullen*
+/all \- All words
+/pauline \- Only words from __Vocabulary for IELTS Advanced \- Pauline Cullen__
+/phrasalverbs \- Only phrasal verbs
 
 **Modes**
-/rus2eng - Use only tasks for translation from Russian to English
-/eng2rus - Use only tasks for translation from English to Russian
-/random - Select random task for both side
+/rus2eng \- Only Russian to English tasks
+/eng2rus \- Only English to Russian tasks
+/random \- Select random task for both side
 
 **Tap to /next for getting new poll.**`
 

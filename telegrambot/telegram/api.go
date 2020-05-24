@@ -243,7 +243,7 @@ func (api *api) SendMessage(chatID dao.ChatID, text string) {
 }
 
 func (api *api) SendMarkdownMessage(chatID dao.ChatID, text string) {
-	api.sendMessage(chatID, text, tgbotapi.ModeMarkdown)
+	api.sendMessage(chatID, text, tgbotapi.ModeMarkdownV2)
 }
 
 func (api *api) sendMessage(chatID dao.ChatID, text string, parseMode string) {
