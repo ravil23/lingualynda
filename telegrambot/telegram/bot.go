@@ -32,7 +32,7 @@ Modes:
 /eng2rus - Use only tasks for translation from English to Russian
 /random - Select random task for both side
 
-Type any message for getting next poll.`
+Type any message or tap to /next for getting new poll.`
 
 type Bot struct {
 	api API
