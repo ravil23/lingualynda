@@ -79,10 +79,10 @@ func (b *Bot) Run() {
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
 		var chatsState *ChatsState
 		if state, found := chatsStates[message.ChatID]; found {
+			chatsState = state
+		} else {
 			chatsState = &ChatsState{}
 			chatsStates[message.ChatID] = chatsState
-		} else {
-			chatsState = state
 		}
 		switch message.Text {
 		case "/help", "/start":
