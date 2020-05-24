@@ -9,7 +9,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/ravil23/lingualynda/telegrambot/collection"
-	"github.com/ravil23/lingualynda/telegrambot/collection/paulineunit1"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
@@ -171,7 +170,7 @@ func (api *api) SendNextPoll(user *dao.User) error {
 }
 
 func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
-	question := generateRandomQuestion()
+	question := generateRandomQuestion(user.ChatID)
 	if err := api.questionDAO.Upsert(question); err != nil {
 		return nil, err
 	}
@@ -193,9 +192,13 @@ func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
 	return poll, nil
 }
 
-func generateRandomQuestion() *dao.Question {
-	term := paulineunit1.VocabularyTotal.GetRandomTerm()
-	correctTranslations := paulineunit1.VocabularyTotal.GetTranslations(term)
+func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
+	selectedVocabulary := collection.VocabularyTotal
+	if vocabulary, found := selectedVocabularies[chatID]; found {
+		selectedVocabulary = vocabulary
+	}
+	term := selectedVocabulary.GetRandomTerm()
+	correctTranslations := selectedVocabulary.GetTranslations(term)
 	correctTranslation := correctTranslations[rand.Intn(len(correctTranslations))]
 	question := &dao.Question{
 		Text: term.String(),
@@ -204,7 +207,7 @@ func generateRandomQuestion() *dao.Question {
 		},
 	}
 	for len(question.Options) < maxQuestionOptionsCount {
-		randomTranslation := collection.VocabularyTotal.GetRandomTranslation()
+		randomTranslation := selectedVocabulary.GetRandomTranslation()
 		isValidTranslation := true
 		for _, correctTranslation := range correctTranslations {
 			if randomTranslation == correctTranslation {
