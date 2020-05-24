@@ -29,7 +29,7 @@ type API interface {
 	SendNextPoll(user *dao.User) error
 	SendAlert(text string)
 	SendMessage(chatID dao.ChatID, text string)
-	SendHTMLMessage(chatID dao.ChatID, text string)
+	SendMarkdownMessage(chatID dao.ChatID, text string)
 }
 
 var _ API = (*api)(nil)
@@ -242,15 +242,15 @@ func (api *api) SendMessage(chatID dao.ChatID, text string) {
 	api.sendMessage(chatID, text, "")
 }
 
-func (api *api) SendHTMLMessage(chatID dao.ChatID, text string) {
-	api.sendMessage(chatID, text, tgbotapi.ModeHTML)
+func (api *api) SendMarkdownMessage(chatID dao.ChatID, text string) {
+	api.sendMessage(chatID, text, tgbotapi.ModeMarkdownV2)
 }
 
 func (api *api) sendMessage(chatID dao.ChatID, text string, parseMode string) {
 	log.Print(text)
 	tgMessage := tgbotapi.NewMessage(int64(chatID), text)
-	_, err := api.tgAPI.Send(tgMessage)
 	tgMessage.ParseMode = parseMode
+	_, err := api.tgAPI.Send(tgMessage)
 	if err != nil {
 		log.Printf("Error on sending message: %s", err)
 	}

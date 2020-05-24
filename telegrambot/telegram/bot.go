@@ -18,17 +18,17 @@ const (
 	maxRetriesCount = 30
 )
 
-const helpText = `<b>Vocabularies</b>
-/all - All words
-/pauline - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>
-/phrasalverbs - Only phrasal verbs
+const helpText = `**Vocabularies**
+/all \- All words
+/pauline \- Only words from __Vocabulary for IELTS Advanced \- Pauline Cullen__
+/phrasalverbs \- Only phrasal verbs
 
-<b>Modes</b>
-/rus2eng - Only Russian to English tasks
-/eng2rus - Only English to Russian tasks
-/random - Select random task for both side
+**Modes**
+/rus2eng \- Only Russian to English tasks
+/eng2rus \- Only English to Russian tasks
+/random \- Select random task for both side
 
-<b>Tap to /next for getting new poll.</b>`
+**Tap to /next for getting new poll.**`
 
 type Bot struct {
 	api API
@@ -86,7 +86,7 @@ func (b *Bot) Run() {
 		}
 		switch message.Text {
 		case "/help", "/start":
-			b.api.SendHTMLMessage(message.ChatID, helpText)
+			b.api.SendMarkdownMessage(message.ChatID, helpText)
 			return nil
 		case "/debug":
 			chatsState.debug = true
