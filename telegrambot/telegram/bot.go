@@ -21,6 +21,16 @@ const (
 	maxRetriesCount = 30
 )
 
+const helpText = `Vocabularies:
+/all - Use total vocabulary
+/phrasalverbs - Use only phrasal verbs
+/pauline - Use only words from book "Vocabulary for IELTS Advanced - Pauline Cullen"
+
+Modes:
+/rus2eng - Use only tasks for translation from Russian to English
+/eng2rus - Use only tasks for translation from English to Russian
+/random - Select random task for both side`
+
 type Bot struct {
 	api API
 }
@@ -69,12 +79,16 @@ func (b *Bot) Run() {
 		}
 	}()
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
+		if message.Text == "/help" {
+			b.api.SendMessage(message.ChatID, helpText)
+			return nil
+		}
 		switch message.Text {
 		case "/random":
 			selectedModes[message.ChatID] = modeRandom
-		case "/eng-rus":
+		case "/eng2rus":
 			selectedModes[message.ChatID] = modeEngToRus
-		case "/rus-eng":
+		case "/rus2eng":
 			selectedModes[message.ChatID] = modeRusToEng
 		}
 		selectedMode := selectedModes[message.ChatID]

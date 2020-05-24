@@ -27,6 +27,7 @@ type API interface {
 	ListenUpdates() error
 	SendNextPoll(user *dao.User) error
 	SendAlert(text string)
+	SendMessage(chatID dao.ChatID, text string)
 }
 
 var _ API = (*api)(nil)
@@ -229,11 +230,15 @@ func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
 }
 
 func (api *api) SendAlert(text string) {
+	api.SendMessage(alertsChatID, fmt.Sprintf("[%s] %s", api.hostName, text))
+}
+
+func (api *api) SendMessage(chatID dao.ChatID, text string) {
 	log.Print(text)
-	tgMessage := tgbotapi.NewMessage(alertsChatID, fmt.Sprintf("[%s] %s", api.hostName, text))
+	tgMessage := tgbotapi.NewMessage(int64(chatID), text)
 	_, err := api.tgAPI.Send(tgMessage)
 	if err != nil {
-		log.Printf("Error on sending alert: %s", err)
+		log.Printf("Error on sending message: %s", err)
 	}
 }
 
