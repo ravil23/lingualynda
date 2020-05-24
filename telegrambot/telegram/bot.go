@@ -85,6 +85,9 @@ func (b *Bot) Run() {
 			b.api.SendMessage(message.ChatID, helpText)
 			return nil
 		}
+		if message.Text == "/debug" {
+			enabledDebugging[message.ChatID] = true
+		}
 		switch message.Text {
 		case "/random":
 			selectedModes[message.ChatID] = modeRandom
@@ -123,6 +126,17 @@ func (b *Bot) Run() {
 				selectedVocabularies[message.ChatID] = phrasalverbs.AllVocabularies
 			}
 		}
+		if enabledDebugging[message.ChatID] {
+			listOfVocabularies := selectedVocabularies[message.ChatID]
+			debugMessage := fmt.Sprintf("\nSelected mode: '%s'", selectedMode)
+			debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(listOfVocabularies))
+			debugMessage += fmt.Sprintf("\nExample term and translations:")
+			for _, vocabulary := range listOfVocabularies {
+				term := vocabulary.GetRandomTerm()
+				debugMessage += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
+			}
+			b.api.SendAlert(debugMessage)
+		}
 		return b.api.SendNextPoll(message.User)
 	})
 	b.api.SetPollAnswersHandler(func(pollAnswer *dao.PollAnswer) error {
@@ -142,4 +156,19 @@ func (b *Bot) serve() {
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 	<-signals
 	b.api.SendAlert(fmt.Sprintf("%s stopped", botMention))
+}
+
+func (b *Bot) debug(chatID dao.ChatID) {
+	if enabledDebugging[chatID] {
+		selectedMode := selectedModes[chatID]
+		listOfVocabularies := selectedVocabularies[chatID]
+		debugMessage := fmt.Sprintf("\nSelected mode: '%s'", selectedMode)
+		debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(listOfVocabularies))
+		debugMessage += fmt.Sprintf("\nExample term and translations:")
+		for _, vocabulary := range listOfVocabularies {
+			term := vocabulary.GetRandomTerm()
+			debugMessage += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
+		}
+		b.api.SendAlert(debugMessage)
+	}
 }

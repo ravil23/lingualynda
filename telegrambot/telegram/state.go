@@ -15,3 +15,4 @@ const (
 
 var selectedVocabularies = map[dao.ChatID][]*schema.Vocabulary{}
 var selectedModes = map[dao.ChatID]mode{}
+var enabledDebugging = map[dao.ChatID]bool{}
