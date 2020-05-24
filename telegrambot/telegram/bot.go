@@ -75,7 +75,6 @@ func (b *Bot) HealthCheck() {
 }
 
 func (b *Bot) Run() {
-	b.api.SendAlert(botMention + " is running...")
 	defer func() {
 		if r := recover(); r != nil {
 			b.api.SendAlert(fmt.Sprintf("Recovered from panic: %s", r))
@@ -102,7 +101,7 @@ func (b *Bot) Run() {
 				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{collection.VocabularyEngToRus}
 			case modeRusToEng:
 				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{collection.VocabularyRusToEng}
-			case modeRandom:
+			default:
 				selectedVocabularies[message.ChatID] = collection.AllVocabularies
 			}
 		case "/pauline":
@@ -111,7 +110,7 @@ func (b *Bot) Run() {
 				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{pauline.VocabularyEngToRus}
 			case modeRusToEng:
 				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{pauline.VocabularyRusToEng}
-			case modeRandom:
+			default:
 				selectedVocabularies[message.ChatID] = pauline.AllVocabularies
 			}
 		case "/phrasalverbs":
@@ -120,33 +119,25 @@ func (b *Bot) Run() {
 				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{phrasalverbs.VocabularyEngToRus}
 			case modeRusToEng:
 				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{phrasalverbs.VocabularyRusToEng}
-			case modeRandom:
+			default:
 				selectedVocabularies[message.ChatID] = phrasalverbs.AllVocabularies
 			}
 		}
-		listOfVocabularies := selectedVocabularies[message.ChatID]
-		debug := fmt.Sprintf("Selected mode: %s", selectedMode)
-		debug += fmt.Sprintf("\nSelected vocabulary: %v", listOfVocabularies)
-		for _, vocabulary := range listOfVocabularies {
-			term := vocabulary.GetRandomTerm()
-			debug += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
-		}
-		b.api.SendAlert(debug)
 		return b.api.SendNextPoll(message.User)
 	})
 	b.api.SetPollAnswersHandler(func(pollAnswer *dao.PollAnswer) error {
 		return b.api.SendNextPoll(pollAnswer.User)
 	})
-	go func() {
-		if err := b.api.ListenUpdates(); err != nil {
-			log.Panic(err)
-		}
-	}()
 	b.serve()
 }
 
 func (b *Bot) serve() {
-	b.api.SendAlert(fmt.Sprintf("%s started", botMention))
+	go func() {
+		b.api.SendAlert(fmt.Sprintf("%s started", botMention))
+		if err := b.api.ListenUpdates(); err != nil {
+			log.Panic(err)
+		}
+	}()
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 	<-signals

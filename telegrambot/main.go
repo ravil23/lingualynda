@@ -8,7 +8,5 @@ func main() {
 	bot := telegram.NewBot()
 	bot.Init()
 	bot.HealthCheck()
-	for {
-		bot.Run()
-	}
+	bot.Run()
 }

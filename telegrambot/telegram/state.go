@@ -9,8 +9,8 @@ type mode string
 
 const (
 	modeRandom   = mode("random")
-	modeEngToRus = mode("eng-rus")
-	modeRusToEng = mode("rus-eng")
+	modeEngToRus = mode("eng2rus")
+	modeRusToEng = mode("rus2eng")
 )
 
 var selectedVocabularies = map[dao.ChatID][]*schema.Vocabulary{}
