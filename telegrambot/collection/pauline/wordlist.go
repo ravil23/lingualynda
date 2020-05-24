@@ -8,8 +8,18 @@ import (
 )
 
 var VocabularyTotal *schema.Vocabulary
+var VocabularyEngToRus *schema.Vocabulary
+var VocabularyRusToEng *schema.Vocabulary
 
 func init() {
+	VocabularyEngToRus = schema.NewEmptyVocabulary().
+		Update(paulineunit1.VocabularyEngToRus).
+		Update(paulineunit2.VocabularyEngToRus).
+		Update(paulineunit3.VocabularyEngToRus)
+	VocabularyRusToEng = schema.NewEmptyVocabulary().
+		Update(paulineunit1.VocabularyRusToEng).
+		Update(paulineunit2.VocabularyRusToEng).
+		Update(paulineunit3.VocabularyRusToEng)
 	VocabularyTotal = schema.NewEmptyVocabulary().
 		Update(paulineunit1.VocabularyTotal).
 		Update(paulineunit2.VocabularyTotal).

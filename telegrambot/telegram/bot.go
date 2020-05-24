@@ -70,12 +70,42 @@ func (b *Bot) Run() {
 	}()
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
 		switch message.Text {
+		case "/random":
+			selectedModes[message.ChatID] = modeRandom
+		case "/eng-rus":
+			selectedModes[message.ChatID] = modeEngToRus
+		case "/rus-eng":
+			selectedModes[message.ChatID] = modeRusToEng
+		}
+		selectedMode := selectedModes[message.ChatID]
+		switch message.Text {
 		case "/all":
-			selectedVocabularies[message.ChatID] = collection.VocabularyTotal
+			switch selectedMode {
+			case modeEngToRus:
+				selectedVocabularies[message.ChatID] = collection.VocabularyEngToRus
+			case modeRusToEng:
+				selectedVocabularies[message.ChatID] = collection.VocabularyRusToEng
+			default:
+				selectedVocabularies[message.ChatID] = collection.VocabularyTotal
+			}
 		case "/pauline":
-			selectedVocabularies[message.ChatID] = pauline.VocabularyTotal
+			switch selectedMode {
+			case modeEngToRus:
+				selectedVocabularies[message.ChatID] = pauline.VocabularyEngToRus
+			case modeRusToEng:
+				selectedVocabularies[message.ChatID] = pauline.VocabularyRusToEng
+			default:
+				selectedVocabularies[message.ChatID] = pauline.VocabularyTotal
+			}
 		case "/phrasalverbs":
-			selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyTotal
+			switch selectedMode {
+			case modeEngToRus:
+				selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyEngToRus
+			case modeRusToEng:
+				selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyRusToEng
+			default:
+				selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyTotal
+			}
 		}
 		return b.api.SendNextPoll(message.User)
 	})

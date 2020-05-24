@@ -51,11 +51,17 @@ var VocabularyVerbs = schema.NewVocabulary(
 )
 
 var VocabularyTotal *schema.Vocabulary
+var VocabularyEngToRus *schema.Vocabulary
+var VocabularyRusToEng *schema.Vocabulary
 
 func init() {
-	VocabularyTotal = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = schema.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns).
 		Update(VocabularyPhrases).
 		Update(VocabularyVerbs)
+	VocabularyRusToEng = VocabularyEngToRus.MakeInvertedVocabulary()
+	VocabularyTotal = schema.NewEmptyVocabulary().
+		Update(VocabularyEngToRus).
+		Update(VocabularyRusToEng)
 }

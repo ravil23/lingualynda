@@ -17,7 +17,7 @@ func (t Translation) String() string {
 }
 
 type Vocabulary struct {
-	translationsToRussian map[Term][]Translation
+	translations map[Term][]Translation
 
 	allTerms        []Term
 	allTranslations []Translation
@@ -25,17 +25,17 @@ type Vocabulary struct {
 
 func NewEmptyVocabulary() *Vocabulary {
 	return &Vocabulary{
-		translationsToRussian: make(map[Term][]Translation),
+		translations: make(map[Term][]Translation),
 	}
 }
 
-func NewVocabulary(collection map[Term][]Translation) *Vocabulary {
+func NewVocabulary(wordList map[Term][]Translation) *Vocabulary {
 	v := &Vocabulary{
-		translationsToRussian: collection,
-		allTerms:              make([]Term, 0, len(collection)),
-		allTranslations:       make([]Translation, 0, len(collection)),
+		translations:    wordList,
+		allTerms:        make([]Term, 0, len(wordList)),
+		allTranslations: make([]Translation, 0, len(wordList)),
 	}
-	for term, translations := range collection {
+	for term, translations := range wordList {
 		v.allTerms = append(v.allTerms, term)
 		v.allTranslations = append(v.allTranslations, translations...)
 	}
@@ -47,7 +47,7 @@ func (v *Vocabulary) GetRandomTerm() Term {
 }
 
 func (v *Vocabulary) GetTranslations(term Term) []Translation {
-	return v.translationsToRussian[term]
+	return v.translations[term]
 }
 
 func (v *Vocabulary) GetRandomTranslation() Translation {
@@ -55,10 +55,24 @@ func (v *Vocabulary) GetRandomTranslation() Translation {
 }
 
 func (v *Vocabulary) Update(other *Vocabulary) *Vocabulary {
-	for term, translations := range other.translationsToRussian {
-		v.translationsToRussian[term] = translations
+	for term, translations := range other.translations {
+		v.translations[term] = translations
 	}
 	v.allTerms = append(v.allTerms, other.allTerms...)
 	v.allTranslations = append(v.allTranslations, other.allTranslations...)
 	return v
+}
+
+func (v *Vocabulary) MakeInvertedVocabulary() *Vocabulary {
+	invertedWordList := make(map[Term][]Translation)
+	for term, translations := range v.translations {
+		for _, translation := range translations {
+			if invertedTranslations, found := invertedWordList[Term(translation)]; found {
+				invertedTranslations = append(invertedTranslations, Translation(term))
+			} else {
+				invertedWordList[Term(translation)] = []Translation{Translation(term)}
+			}
+		}
+	}
+	return NewVocabulary(invertedWordList)
 }
