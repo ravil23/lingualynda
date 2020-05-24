@@ -12,8 +12,7 @@ type PollType string
 type PollOptionID int64
 
 const (
-	PollTypeQuiz    = "quiz"
-	PollTypeRegular = "regular"
+	PollTypeQuiz = "quiz"
 )
 
 func (t PollType) String() string {

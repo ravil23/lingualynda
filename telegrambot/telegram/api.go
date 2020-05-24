@@ -184,7 +184,7 @@ func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
 	}
 
 	poll := &dao.Poll{
-		Type:       dao.PollTypeRegular,
+		Type:       dao.PollTypeQuiz,
 		QuestionID: question.ID,
 		Question:   question,
 		IsPublic:   true,
