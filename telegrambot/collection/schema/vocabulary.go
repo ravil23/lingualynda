@@ -68,7 +68,16 @@ func (v *Vocabulary) MakeInvertedVocabulary() *Vocabulary {
 	for term, translations := range v.translations {
 		for _, translation := range translations {
 			if invertedTranslations, found := invertedWordList[Term(translation)]; found {
-				invertedTranslations = append(invertedTranslations, Translation(term))
+				alreadyAdded := false
+				for _, invertedTranslation := range invertedTranslations {
+					if invertedTranslation == Translation(term) {
+						alreadyAdded = true
+						break
+					}
+				}
+				if !alreadyAdded {
+					invertedTranslations = append(invertedTranslations, Translation(term))
+				}
 			} else {
 				invertedWordList[Term(translation)] = []Translation{Translation(term)}
 			}

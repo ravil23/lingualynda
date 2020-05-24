@@ -12,6 +12,7 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
 	"github.com/ravil23/lingualynda/telegrambot/collection/phrasalverbs"
+	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
@@ -98,29 +99,29 @@ func (b *Bot) Run() {
 		case "/all":
 			switch selectedMode {
 			case modeEngToRus:
-				selectedVocabularies[message.ChatID] = collection.VocabularyEngToRus
+				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{collection.VocabularyEngToRus}
 			case modeRusToEng:
-				selectedVocabularies[message.ChatID] = collection.VocabularyRusToEng
-			default:
-				selectedVocabularies[message.ChatID] = collection.VocabularyTotal
+				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{collection.VocabularyRusToEng}
+			case modeRandom:
+				selectedVocabularies[message.ChatID] = collection.AllVocabularies
 			}
 		case "/pauline":
 			switch selectedMode {
 			case modeEngToRus:
-				selectedVocabularies[message.ChatID] = pauline.VocabularyEngToRus
+				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{pauline.VocabularyEngToRus}
 			case modeRusToEng:
-				selectedVocabularies[message.ChatID] = pauline.VocabularyRusToEng
-			default:
-				selectedVocabularies[message.ChatID] = pauline.VocabularyTotal
+				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{pauline.VocabularyRusToEng}
+			case modeRandom:
+				selectedVocabularies[message.ChatID] = pauline.AllVocabularies
 			}
 		case "/phrasalverbs":
 			switch selectedMode {
 			case modeEngToRus:
-				selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyEngToRus
+				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{phrasalverbs.VocabularyEngToRus}
 			case modeRusToEng:
-				selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyRusToEng
-			default:
-				selectedVocabularies[message.ChatID] = phrasalverbs.VocabularyTotal
+				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{phrasalverbs.VocabularyRusToEng}
+			case modeRandom:
+				selectedVocabularies[message.ChatID] = phrasalverbs.AllVocabularies
 			}
 		}
 		return b.api.SendNextPoll(message.User)

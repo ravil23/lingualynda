@@ -7,9 +7,9 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 )
 
-var VocabularyTotal *schema.Vocabulary
 var VocabularyEngToRus *schema.Vocabulary
 var VocabularyRusToEng *schema.Vocabulary
+var AllVocabularies []*schema.Vocabulary
 
 func init() {
 	VocabularyEngToRus = schema.NewEmptyVocabulary().
@@ -20,8 +20,5 @@ func init() {
 		Update(paulineunit1.VocabularyRusToEng).
 		Update(paulineunit2.VocabularyRusToEng).
 		Update(paulineunit3.VocabularyRusToEng)
-	VocabularyTotal = schema.NewEmptyVocabulary().
-		Update(paulineunit1.VocabularyTotal).
-		Update(paulineunit2.VocabularyTotal).
-		Update(paulineunit3.VocabularyTotal)
+	AllVocabularies = []*schema.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }

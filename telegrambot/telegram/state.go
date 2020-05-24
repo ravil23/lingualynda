@@ -13,5 +13,5 @@ const (
 	modeRusToEng = mode("rus-eng")
 )
 
-var selectedVocabularies = map[dao.ChatID]*schema.Vocabulary{}
+var selectedVocabularies = map[dao.ChatID][]*schema.Vocabulary{}
 var selectedModes = map[dao.ChatID]mode{}

@@ -9,6 +9,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/ravil23/lingualynda/telegrambot/collection"
+	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
@@ -194,10 +195,13 @@ func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
 }
 
 func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
-	selectedVocabulary := collection.VocabularyTotal
-	if vocabulary, found := selectedVocabularies[chatID]; found {
-		selectedVocabulary = vocabulary
+	var listOfVocabularies []*schema.Vocabulary
+	if vocabularies, found := selectedVocabularies[chatID]; found {
+		listOfVocabularies = vocabularies
+	} else {
+		listOfVocabularies = []*schema.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
 	}
+	selectedVocabulary := listOfVocabularies[rand.Intn(len(listOfVocabularies))]
 	term := selectedVocabulary.GetRandomTerm()
 	correctTranslations := selectedVocabulary.GetTranslations(term)
 	correctTranslation := correctTranslations[rand.Intn(len(correctTranslations))]
