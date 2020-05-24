@@ -240,6 +240,7 @@ func (api *api) SendAlert(text string) {
 func (api *api) SendMessage(chatID dao.ChatID, text string) {
 	log.Print(text)
 	tgMessage := tgbotapi.NewMessage(int64(chatID), text)
+	tgMessage.ParseMode = tgbotapi.ModeMarkdownV2
 	_, err := api.tgAPI.Send(tgMessage)
 	if err != nil {
 		log.Printf("Error on sending message: %s", err)

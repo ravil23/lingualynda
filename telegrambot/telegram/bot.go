@@ -18,17 +18,17 @@ const (
 	maxRetriesCount = 30
 )
 
-const helpText = `Vocabularies:
+const helpText = `*Vocabularies*
 /all - Use total vocabulary
 /phrasalverbs - Use only phrasal verbs
 /pauline - Use only words from book "Vocabulary for IELTS Advanced - Pauline Cullen"
 
-Modes:
+*Modes*
 /rus2eng - Use only tasks for translation from Russian to English
 /eng2rus - Use only tasks for translation from English to Russian
 /random - Select random task for both side
 
-Type any message or tap to /next for getting new poll.`
+*Tap to /next for getting new poll.*`
 
 type Bot struct {
 	api API
