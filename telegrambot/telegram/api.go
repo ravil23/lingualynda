@@ -183,7 +183,7 @@ func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
 	}
 
 	poll := &dao.Poll{
-		Type:       dao.PollTypeQuiz,
+		Type:       dao.PollTypeRegular,
 		QuestionID: question.ID,
 		Question:   question,
 		IsPublic:   true,
@@ -196,8 +196,8 @@ func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
 
 func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
 	var listOfVocabularies []*schema.Vocabulary
-	if vocabularies, found := selectedVocabularies[chatID]; found {
-		listOfVocabularies = vocabularies
+	if chat, found := chatsStates[chatID]; found {
+		listOfVocabularies = chat.vocabularies
 	} else {
 		listOfVocabularies = []*schema.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
 	}

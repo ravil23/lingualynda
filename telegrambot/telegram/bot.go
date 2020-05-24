@@ -9,10 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ravil23/lingualynda/telegrambot/collection"
-	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
-	"github.com/ravil23/lingualynda/telegrambot/collection/phrasalverbs"
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
@@ -81,62 +77,33 @@ func (b *Bot) Run() {
 		}
 	}()
 	b.api.SetMessagesHandler(func(message *dao.Message) error {
-		if message.Text == "/help" || message.Text == "/start" {
+		var chatsState *ChatsState
+		if state, found := chatsStates[message.ChatID]; found {
+			chatsState = &ChatsState{}
+			chatsStates[message.ChatID] = chatsState
+		} else {
+			chatsState = state
+		}
+		switch message.Text {
+		case "/help", "/start":
 			b.api.SendMessage(message.ChatID, helpText)
 			return nil
+		case "/debug":
+			chatsState.debug = true
+		case fmt.Sprintf("/%s", modeRandom):
+			chatsState.SetMode(modeRandom)
+		case fmt.Sprintf("/%s", modeEngToRus):
+			chatsState.SetMode(modeEngToRus)
+		case fmt.Sprintf("/%s", modeRusToEng):
+			chatsState.SetMode(modeRusToEng)
+		case fmt.Sprintf("/%s", vocabularyAll):
+			chatsState.SetVocabulary(vocabularyAll)
+		case fmt.Sprintf("/%s", vocabularyPauline):
+			chatsState.SetVocabulary(vocabularyPauline)
+		case fmt.Sprintf("/%s", vocabularyPhrasalVerbs):
+			chatsState.SetVocabulary(vocabularyPhrasalVerbs)
 		}
-		if message.Text == "/debug" {
-			enabledDebugging[message.ChatID] = true
-		}
-		switch message.Text {
-		case "/random":
-			selectedModes[message.ChatID] = modeRandom
-		case "/eng2rus":
-			selectedModes[message.ChatID] = modeEngToRus
-		case "/rus2eng":
-			selectedModes[message.ChatID] = modeRusToEng
-		}
-		selectedMode := selectedModes[message.ChatID]
-		switch message.Text {
-		case "/all":
-			switch selectedMode {
-			case modeEngToRus:
-				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{collection.VocabularyEngToRus}
-			case modeRusToEng:
-				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{collection.VocabularyRusToEng}
-			default:
-				selectedVocabularies[message.ChatID] = collection.AllVocabularies
-			}
-		case "/pauline":
-			switch selectedMode {
-			case modeEngToRus:
-				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{pauline.VocabularyEngToRus}
-			case modeRusToEng:
-				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{pauline.VocabularyRusToEng}
-			default:
-				selectedVocabularies[message.ChatID] = pauline.AllVocabularies
-			}
-		case "/phrasalverbs":
-			switch selectedMode {
-			case modeEngToRus:
-				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{phrasalverbs.VocabularyEngToRus}
-			case modeRusToEng:
-				selectedVocabularies[message.ChatID] = []*schema.Vocabulary{phrasalverbs.VocabularyRusToEng}
-			default:
-				selectedVocabularies[message.ChatID] = phrasalverbs.AllVocabularies
-			}
-		}
-		if enabledDebugging[message.ChatID] {
-			listOfVocabularies := selectedVocabularies[message.ChatID]
-			debugMessage := fmt.Sprintf("\nSelected mode: '%s'", selectedMode)
-			debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(listOfVocabularies))
-			debugMessage += fmt.Sprintf("\nExample term and translations:")
-			for _, vocabulary := range listOfVocabularies {
-				term := vocabulary.GetRandomTerm()
-				debugMessage += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
-			}
-			b.api.SendAlert(debugMessage)
-		}
+		b.debug(chatsState)
 		return b.api.SendNextPoll(message.User)
 	})
 	b.api.SetPollAnswersHandler(func(pollAnswer *dao.PollAnswer) error {
@@ -158,14 +125,12 @@ func (b *Bot) serve() {
 	b.api.SendAlert(fmt.Sprintf("%s stopped", botMention))
 }
 
-func (b *Bot) debug(chatID dao.ChatID) {
-	if enabledDebugging[chatID] {
-		selectedMode := selectedModes[chatID]
-		listOfVocabularies := selectedVocabularies[chatID]
-		debugMessage := fmt.Sprintf("\nSelected mode: '%s'", selectedMode)
-		debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(listOfVocabularies))
+func (b *Bot) debug(chatsState *ChatsState) {
+	if chatsState.debug {
+		debugMessage := fmt.Sprintf("\nSelected mode: '%s'", chatsState.mode)
+		debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(chatsState.vocabularies))
 		debugMessage += fmt.Sprintf("\nExample term and translations:")
-		for _, vocabulary := range listOfVocabularies {
+		for _, vocabulary := range chatsState.vocabularies {
 			term := vocabulary.GetRandomTerm()
 			debugMessage += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
 		}

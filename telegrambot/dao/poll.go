@@ -12,7 +12,8 @@ type PollType string
 type PollOptionID int64
 
 const (
-	PollTypeQuiz = "quiz"
+	PollTypeQuiz    = "quiz"
+	PollTypeRegular = "regular"
 )
 
 func (t PollType) String() string {
@@ -32,17 +33,20 @@ type Poll struct {
 
 func (p *Poll) ToChatable(chatID ChatID) *tgbotapi.SendPollConfig {
 	correctOptionID := -1
+	correctAnswer := ""
 	tgOptions := make([]string, 0, len(p.Question.Options))
 	for i, option := range p.Question.Options {
 		tgOptions = append(tgOptions, option.Text)
 		if option.IsCorrect {
 			correctOptionID = i
+			correctAnswer = option.Text
 		}
 	}
 	tgPoll := tgbotapi.NewPoll(int64(chatID), p.Question.Text, tgOptions...)
 	tgPoll.CorrectOptionID = int64(correctOptionID)
 	tgPoll.Type = p.Type.String()
 	tgPoll.IsAnonymous = !p.IsPublic
+	tgPoll.Explanation = correctAnswer
 	return &tgPoll
 }
 
