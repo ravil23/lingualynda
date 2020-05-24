@@ -112,7 +112,7 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 		}
 
 		if update.Message.Command() == "start" {
-			api.SendAlert(fmt.Sprintf("@%s started conversation with %s", user.NickName, botMention))
+			api.SendAlert(fmt.Sprintf("%s started conversation with %s", user.GetFormattedName(), botMention))
 		}
 
 		message := dao.NewMessage(update.Message, user)

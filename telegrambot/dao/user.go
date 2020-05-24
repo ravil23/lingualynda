@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-pg/pg/v9/orm"
@@ -21,6 +22,20 @@ type User struct {
 	ChatID    ChatID    `pg:"chat_id"`
 	CreatedAt time.Time `pg:"created_at,default:now()"`
 	UpdatedAt time.Time `pg:"updated_at,default:now()"`
+}
+
+func (u *User) GetFormattedName() string {
+	userString := fmt.Sprintf("[id=%d]", u.ID)
+	if u.NickName != "" {
+		userString = "@" + u.NickName + " " + userString
+	}
+	if u.LastName != "" {
+		userString = u.LastName + " " + userString
+	}
+	if u.FirstName != "" {
+		userString = u.FirstName + " " + userString
+	}
+	return userString
 }
 
 func NewUser(tgUser *tgbotapi.User) *User {
