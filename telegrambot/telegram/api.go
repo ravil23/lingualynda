@@ -196,7 +196,7 @@ func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
 
 func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
 	var listOfVocabularies []*schema.Vocabulary
-	if chat, found := chatsStates[chatID]; found {
+	if chat, found := chatsStates[chatID]; found && len(chat.vocabularies) > 0 {
 		listOfVocabularies = chat.vocabularies
 	} else {
 		listOfVocabularies = []*schema.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
