@@ -7,7 +7,6 @@ AI powered dialog system for learning languages
 ## Requirements
 - `Go v1.13`
 - `Docker Compose` (optional)
-- `Heroku CLI` (optional)
 
 ## Running
 Specify `BOT_TOKEN` environment variable and run next command:
@@ -21,19 +20,3 @@ Run development environment on localhost:
 docker-compose up --build postgres pgadmin
 ```
 It is useful for debugging and writing integration tests.
-
-## Heroku
-Login one time on a host before starting work:
-```
-heroku login
-```
-
-Start Telegram bot:
-```
-heroku ps:scale -a lingualynda telegrambot=1
-```
-
-Stop Telegram bot:
-```
-heroku ps:stop -a lingualynda telegrambot
-```
