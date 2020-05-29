@@ -22,6 +22,7 @@ const helpText = `<b>Vocabularies</b>
 /all - All words
 /pauline - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>
 /phrasalverbs - Only phrasal verbs
+/adjectives - Only adjectives
 
 <b>Modes</b>
 /rus2eng - Only Russian to English tasks
