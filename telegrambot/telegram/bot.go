@@ -102,6 +102,8 @@ func (b *Bot) Run() {
 			chatsState.SetVocabulary(vocabularyPauline)
 		case fmt.Sprintf("/%s", vocabularyPhrasalVerbs):
 			chatsState.SetVocabulary(vocabularyPhrasalVerbs)
+		case fmt.Sprintf("/%s", vocabularyAdjectives):
+			chatsState.SetVocabulary(vocabularyAdjectives)
 		}
 		b.debug(chatsState)
 		return b.api.SendNextPoll(message.User)
