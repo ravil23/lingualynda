@@ -93,7 +93,7 @@ var VocabularyVerbs = schema.NewVocabulary(
 		"keep on":                  {"делать постоянно повторяющейся"},
 		"keep up with":             {"не отставать"},
 		"kick away":                {"отбрасывать"},
-		"kick off":                 {"снять с ног"},
+		"kick off":                 {"начинать"},
 		"knock down":               {"сносить"},
 		"lash out":                 {"отчитывать"},
 		"lead-in":                  {"введение"},
