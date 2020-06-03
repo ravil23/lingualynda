@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -18,19 +19,21 @@ const (
 	maxRetriesCount = 30
 )
 
-const helpText = `<b>Vocabularies</b>
-/all - All words
-/pauline - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>
-/phrasalverbs - Only phrasal verbs
-/superlativeadjectives - Only superlative adjectives
-/body - Only words about body
-
-<b>Modes</b>
-/rus2eng - Only Russian to English tasks
-/eng2rus - Only English to Russian tasks
-/random - Select random task for both side
-
-<b>Tap to /next for getting new poll</b>`
+var helpText = strings.Join([]string{
+	"<b>Vocabularies</b>",
+	"/all - All words",
+	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", vocabularyPauline),
+	fmt.Sprintf("/%s - Only phrasal verbs", vocabularyPhrasalVerbs),
+	fmt.Sprintf("/%s - Only superlative adjectives", vocabularySuperlativeAdjectives),
+	fmt.Sprintf("/%s - Only words about body", vocabularyBody),
+	"",
+	"<b>Modes</b>",
+	fmt.Sprintf("/%s - Only Russian to English tasks", modeRusToEng),
+	fmt.Sprintf("/%s - Only English to Russian tasks", modeEngToRus),
+	fmt.Sprintf("/%s - Select random task for both side", modeRandom),
+	"",
+	"<b>Tap to /next for getting new poll</b>",
+}, "\n")
 
 type Bot struct {
 	api API
@@ -104,8 +107,8 @@ func (b *Bot) Run() {
 			chatsState.SetVocabulary(vocabularyPauline)
 		case fmt.Sprintf("/%s", vocabularyPhrasalVerbs):
 			chatsState.SetVocabulary(vocabularyPhrasalVerbs)
-		case fmt.Sprintf("/%s", vocabularyAdjectives):
-			chatsState.SetVocabulary(vocabularyAdjectives)
+		case fmt.Sprintf("/%s", vocabularySuperlativeAdjectives):
+			chatsState.SetVocabulary(vocabularySuperlativeAdjectives)
 		case fmt.Sprintf("/%s", vocabularyBody):
 			chatsState.SetVocabulary(vocabularyBody)
 		}
