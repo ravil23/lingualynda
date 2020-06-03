@@ -2,10 +2,11 @@ package telegram
 
 import (
 	"github.com/ravil23/lingualynda/telegrambot/collection"
-	"github.com/ravil23/lingualynda/telegrambot/collection/adjectives"
+	"github.com/ravil23/lingualynda/telegrambot/collection/body"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
 	"github.com/ravil23/lingualynda/telegrambot/collection/phrasalverbs"
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/collection/superlativeadjectives"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 )
 
@@ -17,10 +18,11 @@ const (
 	modeEngToRus = mode("eng2rus")
 	modeRusToEng = mode("rus2eng")
 
-	vocabularyAll          = vocabulary("all")
-	vocabularyPauline      = vocabulary("pauline")
-	vocabularyPhrasalVerbs = vocabulary("phrasalverbs")
-	vocabularyAdjectives   = vocabulary("adjectives")
+	vocabularyAll                   = vocabulary("all")
+	vocabularyPauline               = vocabulary("pauline")
+	vocabularyPhrasalVerbs          = vocabulary("phrasalverbs")
+	vocabularySuperlativeAdjectives = vocabulary("superlativeadjectives")
+	vocabularyBody                  = vocabulary("body")
 )
 
 var chatsStates = map[dao.ChatID]*ChatsState{}
@@ -71,14 +73,23 @@ func (s *ChatsState) refreshVocabularies() {
 		default:
 			s.vocabularies = phrasalverbs.AllVocabularies
 		}
-	case vocabularyAdjectives:
+	case vocabularySuperlativeAdjectives:
 		switch s.mode {
 		case modeEngToRus:
-			s.vocabularies = []*schema.Vocabulary{adjectives.VocabularyEngToRus}
+			s.vocabularies = []*schema.Vocabulary{superlativeadjectives.VocabularyEngToRus}
 		case modeRusToEng:
-			s.vocabularies = []*schema.Vocabulary{adjectives.VocabularyRusToEng}
+			s.vocabularies = []*schema.Vocabulary{superlativeadjectives.VocabularyRusToEng}
 		default:
-			s.vocabularies = adjectives.AllVocabularies
+			s.vocabularies = superlativeadjectives.AllVocabularies
+		}
+	case vocabularyBody:
+		switch s.mode {
+		case modeEngToRus:
+			s.vocabularies = []*schema.Vocabulary{body.VocabularyEngToRus}
+		case modeRusToEng:
+			s.vocabularies = []*schema.Vocabulary{body.VocabularyRusToEng}
+		default:
+			s.vocabularies = body.AllVocabularies
 		}
 	default:
 		s.vocabularies = collection.AllVocabularies

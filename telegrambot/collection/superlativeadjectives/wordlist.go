@@ -1,10 +1,10 @@
-package adjectives
+package superlativeadjectives
 
 import (
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 )
 
-var VocabularyVerbs = schema.NewVocabulary(
+var VocabularyAdjectives = schema.NewVocabulary(
 	map[schema.Term][]schema.Translation{
 		"ancient":           {"древний", "старинный", "античный"},
 		"argumentative":     {"спорящий"},
@@ -58,7 +58,7 @@ var AllVocabularies []*schema.Vocabulary
 
 func init() {
 	VocabularyEngToRus = schema.NewEmptyVocabulary().
-		Update(VocabularyVerbs)
+		Update(VocabularyAdjectives)
 	VocabularyRusToEng = VocabularyEngToRus.MakeInvertedVocabulary()
 	AllVocabularies = []*schema.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }

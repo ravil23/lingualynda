@@ -22,7 +22,8 @@ const helpText = `<b>Vocabularies</b>
 /all - All words
 /pauline - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>
 /phrasalverbs - Only phrasal verbs
-/adjectives - Only adjectives
+/superlativeadjectives - Only superlative adjectives
+/body - Only words about body
 
 <b>Modes</b>
 /rus2eng - Only Russian to English tasks
@@ -105,6 +106,8 @@ func (b *Bot) Run() {
 			chatsState.SetVocabulary(vocabularyPhrasalVerbs)
 		case fmt.Sprintf("/%s", vocabularyAdjectives):
 			chatsState.SetVocabulary(vocabularyAdjectives)
+		case fmt.Sprintf("/%s", vocabularyBody):
+			chatsState.SetVocabulary(vocabularyBody)
 		}
 		b.debug(chatsState)
 		return b.api.SendNextPoll(message.User)
