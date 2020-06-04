@@ -26,6 +26,7 @@ var helpText = strings.Join([]string{
 	fmt.Sprintf("/%s - Only phrasal verbs", vocabularyPhrasalVerbs),
 	fmt.Sprintf("/%s - Only superlative adjectives", vocabularySuperlativeAdjectives),
 	fmt.Sprintf("/%s - Only words about body", vocabularyBody),
+	fmt.Sprintf("/%s - Only idioms", vocabularyIdioms),
 	"",
 	"<b>Modes</b>",
 	fmt.Sprintf("/%s - Only Russian to English tasks", modeRusToEng),
@@ -111,6 +112,8 @@ func (b *Bot) Run() {
 			chatsState.SetVocabulary(vocabularySuperlativeAdjectives)
 		case fmt.Sprintf("/%s", vocabularyBody):
 			chatsState.SetVocabulary(vocabularyBody)
+		case fmt.Sprintf("/%s", vocabularyIdioms):
+			chatsState.SetVocabulary(vocabularyIdioms)
 		}
 		b.debug(chatsState)
 		return b.api.SendNextPoll(message.User)

@@ -3,6 +3,7 @@ package telegram
 import (
 	"github.com/ravil23/lingualynda/telegrambot/collection"
 	"github.com/ravil23/lingualynda/telegrambot/collection/body"
+	"github.com/ravil23/lingualynda/telegrambot/collection/idioms"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
 	"github.com/ravil23/lingualynda/telegrambot/collection/phrasalverbs"
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
@@ -23,6 +24,7 @@ const (
 	vocabularyPhrasalVerbs          = vocabulary("phrasalverbs")
 	vocabularySuperlativeAdjectives = vocabulary("superlativeadjectives")
 	vocabularyBody                  = vocabulary("body")
+	vocabularyIdioms                = vocabulary("idioms")
 )
 
 var chatsStates = map[dao.ChatID]*ChatsState{}
@@ -90,6 +92,15 @@ func (s *ChatsState) refreshVocabularies() {
 			s.vocabularies = []*schema.Vocabulary{body.VocabularyRusToEng}
 		default:
 			s.vocabularies = body.AllVocabularies
+		}
+	case vocabularyIdioms:
+		switch s.mode {
+		case modeEngToRus:
+			s.vocabularies = []*schema.Vocabulary{idioms.VocabularyEngToRus}
+		case modeRusToEng:
+			s.vocabularies = []*schema.Vocabulary{idioms.VocabularyRusToEng}
+		default:
+			s.vocabularies = idioms.AllVocabularies
 		}
 	default:
 		s.vocabularies = collection.AllVocabularies
