@@ -39,6 +39,7 @@ var VocabularyVerbs = schema.NewVocabulary(
 		"bury":         {"хоронить"},
 		"cost fortune": {"стоит целое состояние"},
 		"devote":       {"посвятить", "уделять"},
+		"get stuck":    {"застрять"},
 		"resemble":     {"быть похожим"},
 	},
 )
