@@ -4,6 +4,7 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection"
 	"github.com/ravil23/lingualynda/telegrambot/collection/body"
 	"github.com/ravil23/lingualynda/telegrambot/collection/idioms"
+	"github.com/ravil23/lingualynda/telegrambot/collection/lesson"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
 	"github.com/ravil23/lingualynda/telegrambot/collection/phrasalverbs"
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
@@ -25,6 +26,7 @@ const (
 	vocabularySuperlativeAdjectives = vocabulary("superlativeadjectives")
 	vocabularyBody                  = vocabulary("body")
 	vocabularyIdioms                = vocabulary("idioms")
+	vocabularyLesson                = vocabulary("lesson")
 )
 
 var chatsStates = map[dao.ChatID]*ChatsState{}
@@ -101,6 +103,15 @@ func (s *ChatsState) refreshVocabularies() {
 			s.vocabularies = []*schema.Vocabulary{idioms.VocabularyRusToEng}
 		default:
 			s.vocabularies = idioms.AllVocabularies
+		}
+	case vocabularyLesson:
+		switch s.mode {
+		case modeEngToRus:
+			s.vocabularies = []*schema.Vocabulary{lesson.VocabularyEngToRus}
+		case modeRusToEng:
+			s.vocabularies = []*schema.Vocabulary{lesson.VocabularyRusToEng}
+		default:
+			s.vocabularies = lesson.AllVocabularies
 		}
 	default:
 		s.vocabularies = collection.AllVocabularies
