@@ -117,7 +117,9 @@ func (b *Bot) Run() {
 		case fmt.Sprintf("/%s", entity.ChatVocabularyLesson):
 			chat.SetVocabulary(entity.ChatVocabularyLesson)
 		}
-		b.debug(chat, message.User)
+		if chat.IsDebuggingEnabled() {
+			b.sendDebugMessage(chat, message.User)
+		}
 		return b.api.SendNextPoll(message.User)
 	})
 	b.api.SetPollAnswersHandler(func(user *entity.User, _ *entity.PollAnswer) error {
@@ -139,13 +141,11 @@ func (b *Bot) serve() {
 	b.api.SendAlert(fmt.Sprintf("%s stopped", botMention))
 }
 
-func (b *Bot) debug(chat *entity.Chat, user *entity.User) {
-	if chat.IsDebuggingEnabled() {
-		debugMessage := fmt.Sprintf("\nUser: %s", user.GetFormattedName())
-		debugMessage += fmt.Sprintf("\nChat ID: %d", chat.GetID())
-		debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
-		debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
-		debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
-		b.api.SendAlert(debugMessage)
-	}
+func (b *Bot) sendDebugMessage(chat *entity.Chat, user *entity.User) {
+	debugMessage := fmt.Sprintf("\nUser: %s", user.GetFormattedName())
+	debugMessage += fmt.Sprintf("\nChat ID: %d", chat.GetID())
+	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
+	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
+	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
+	b.api.SendAlert(debugMessage)
 }
