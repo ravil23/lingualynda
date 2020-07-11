@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	timeout                 = 10
-	maxQuestionOptionsCount = 4
-	alertsChatID            = -1001142742669
-	botNickName             = "LinguaLyndaBot"
-	botMention              = "@" + botNickName
+	timeout             = 10
+	maxPollOptionsCount = 4
+	alertsChatID        = -1001142742669
+	botNickName         = "LinguaLyndaBot"
+	botMention          = "@" + botNickName
 )
 
 type API interface {
@@ -174,7 +174,7 @@ func (api *api) getNextPoll(user *entity.User) *entity.Poll {
 			{Translation: correctTranslation, IsCorrect: true},
 		},
 	}
-	for len(poll.Options) < maxQuestionOptionsCount {
+	for len(poll.Options) < maxPollOptionsCount {
 		randomTranslation := selectedVocabulary.GetRandomTranslation()
 		isValidTranslation := true
 		for _, correctTranslation := range correctTranslations {
