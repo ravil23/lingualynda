@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	userMemorizedTermsTTL = -30 * 24 * time.Hour
+	userMemorizedTermsTTL = -7 * 24 * time.Hour
 )
 
 type UserProfileManager struct {
