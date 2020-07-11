@@ -4,6 +4,8 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 )
 
+type MemorizationWeight int
+
 type UserProfile struct {
 	userID                    UserID
 	correctlyTranslatedTerms  map[schema.Term]int
@@ -26,6 +28,6 @@ func (p *UserProfile) AddMistakenlyTranslatedTerm(term schema.Term) {
 	p.mistakenlyTranslatedTerms[term]++
 }
 
-func (p *UserProfile) GetMemorizationWeight(term schema.Term) int {
-	return p.correctlyTranslatedTerms[term] - p.mistakenlyTranslatedTerms[term]
+func (p *UserProfile) GetMemorizationWeight(term schema.Term) MemorizationWeight {
+	return MemorizationWeight(p.correctlyTranslatedTerms[term] - p.mistakenlyTranslatedTerms[term])
 }
