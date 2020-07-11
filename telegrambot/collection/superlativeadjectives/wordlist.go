@@ -1,11 +1,11 @@
 package superlativeadjectives
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyAdjectives = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyAdjectives = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"ancient":           {"древний", "старинный", "античный"},
 		"argumentative":     {"спорящий"},
 		"arrogant":          {"высокомерный"},
@@ -52,13 +52,13 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
-var AllVocabularies []*schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
+var AllVocabularies []*entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyAdjectives)
 	VocabularyRusToEng = VocabularyEngToRus.MakeInvertedVocabulary()
-	AllVocabularies = []*schema.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
+	AllVocabularies = []*entity.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }

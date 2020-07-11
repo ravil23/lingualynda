@@ -1,11 +1,11 @@
 package paulineunit3
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyAdjectives = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyAdjectives = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"anti-social":    {"антиобщественный"},
 		"conservative":   {"консервативный"},
 		"conventional":   {"обычный", "традиционный", "договорной", "общепринятый"},
@@ -17,8 +17,8 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	},
 )
 
-var VocabularyNouns = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyNouns = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"behaviour":    {"поведение", "действия", "выходки"},
 		"demographics": {"демография"},
 		"heritage":     {"наследие", "достояние", "происхождение", "корни", "наследство"},
@@ -33,15 +33,15 @@ var VocabularyNouns = schema.NewVocabulary(
 	},
 )
 
-var VocabularyPhrases = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyPhrases = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"follow accepted behaviour": {"следовать принятому поведению"},
 		"shun mainstream values":    {"избегать массовых ценностей"},
 	},
 )
 
-var VocabularyVerbs = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyVerbs = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"conform": {"соответствовать", "подчиняться"},
 		"exclude": {"исключать", "не допускать", "лишить"},
 		"flaunt":  {"выставлять напоказ", "щеголять", "красоваться", "афишировать", "хвастаться"},
@@ -50,11 +50,11 @@ var VocabularyVerbs = schema.NewVocabulary(
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns).
 		Update(VocabularyPhrases).

@@ -1,11 +1,11 @@
 package paulineunit2
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyAdjectives = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyAdjectives = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"abrupt":        {"резкий", "внезапный", "крутой"},
 		"bygone":        {"ушедшее в прошлое"},
 		"fleeting":      {"мимолетный"},
@@ -23,8 +23,8 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	},
 )
 
-var VocabularyNouns = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyNouns = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"era":        {"эра", "эпоха", "период", "этап"},
 		"evolution":  {"эволюция", "развитие", "изменение", "динамика", "преобразование"},
 		"finds":      {"находки"},
@@ -36,17 +36,17 @@ var VocabularyNouns = schema.NewVocabulary(
 	},
 )
 
-var VocabularyVerbs = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyVerbs = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"excavate": {"выкопать", "перекопать", "раскапывать", "производить земляные работы"},
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns).
 		Update(VocabularyVerbs)

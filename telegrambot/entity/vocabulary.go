@@ -1,4 +1,4 @@
-package schema
+package entity
 
 import (
 	"math/rand"
@@ -44,6 +44,26 @@ func NewVocabulary(wordList map[Term][]Translation) *Vocabulary {
 
 func (v *Vocabulary) GetRandomTerm() Term {
 	return v.allTerms[rand.Intn(len(v.allTerms))]
+}
+
+func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) Term {
+	weights := make(map[Term]float64, len(v.allTerms))
+	weightsSum := 0.
+	for _, term := range v.allTerms {
+		weight := userProfile.GetMemorizationWeight(term)
+		weights[term] = weight
+		weightsSum += weight
+	}
+	randomPoint := rand.Float64() * weightsSum
+	var left, right float64
+	for term, weight := range weights {
+		right = left + weight
+		if left <= randomPoint && randomPoint < right {
+			return term
+		}
+		left = right
+	}
+	return ""
 }
 
 func (v *Vocabulary) GetTranslations(term Term) []Translation {

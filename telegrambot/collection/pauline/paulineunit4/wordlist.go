@@ -1,11 +1,11 @@
 package paulineunit4
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyAdjectives = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyAdjectives = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"bacterial":     {"бактериальный"},
 		"contagious":    {"заразный", "инфекционный"},
 		"contaminated":  {"загрязненный"},
@@ -17,8 +17,8 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	},
 )
 
-var VocabularyNouns = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyNouns = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"capsule":        {"капсула", "коробочка", "оболочка"},
 		"carbon dioxide": {"углекислый газ"},
 		"compound":       {"комплекс", "соединение", "смесь", "вещество"},
@@ -37,19 +37,19 @@ var VocabularyNouns = schema.NewVocabulary(
 	},
 )
 
-var VocabularyVerbs = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyVerbs = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"absorb":      {"поглощать", "осваивать", "покрывать", "впитать"},
 		"contaminate": {"загрязнять", "заражать", "испортить"},
 		"release":     {"выпустить", "освободить"},
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns).
 		Update(VocabularyVerbs)

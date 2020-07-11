@@ -1,11 +1,11 @@
 package paulineunit5
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyAdjectives = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyAdjectives = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"analytical":   {"аналитический"},
 		"blue-collar":  {"рабочий класс", "работники физического труда"},
 		"conceptual":   {"концептуальный"},
@@ -14,8 +14,8 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	},
 )
 
-var VocabularyNouns = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyNouns = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"accounting":        {"учет", "отчетность", "бухгалтерия"},
 		"apprenticeship":    {"ученичество", "обучение", "стажировки"},
 		"conceptualisation": {"концептуализация"},
@@ -32,11 +32,11 @@ var VocabularyNouns = schema.NewVocabulary(
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns)
 	VocabularyRusToEng = VocabularyEngToRus.MakeInvertedVocabulary()

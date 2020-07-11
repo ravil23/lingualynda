@@ -1,11 +1,11 @@
 package paulineunit6
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyAdjectives = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyAdjectives = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"catchy":      {"броский"},
 		"competing":   {"конкурирующий", "соперничающий"},
 		"distracting": {"отвлекающий"},
@@ -23,8 +23,8 @@ var VocabularyAdjectives = schema.NewVocabulary(
 	},
 )
 
-var VocabularyNouns = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyNouns = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"billboard":            {"рекламный щит", "билборд", "плакат", "афиша", "доска объявлений"},
 		"branding":             {"бренд", "клеймо"},
 		"distributor":          {"дистрибьютор", "распространитель", "распределитель", "поставщик"},
@@ -43,8 +43,8 @@ var VocabularyNouns = schema.NewVocabulary(
 	},
 )
 
-var VocabularyVerbs = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyVerbs = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"assure":     {"заверять", "гарантировать", "обеспечивать", "убеждать"},
 		"cultivate":  {"культивировать", "развивать", "выращивать"},
 		"entice":     {"соблазнить", "заманить", "побудить"},
@@ -57,11 +57,11 @@ var VocabularyVerbs = schema.NewVocabulary(
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyAdjectives).
 		Update(VocabularyNouns).
 		Update(VocabularyVerbs)

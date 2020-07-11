@@ -1,11 +1,11 @@
 package phrasalverbs
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyVerbs = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyVerbs = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"add up":                   {"быть правдоподобным", "сходиться"},
 		"ask after somebody":       {"спрашивать о ком-то"},
 		"ask somebody out":         {"пригласить на свидание"},
@@ -269,13 +269,13 @@ var VocabularyVerbs = schema.NewVocabulary(
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
-var AllVocabularies []*schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
+var AllVocabularies []*entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyVerbs)
 	VocabularyRusToEng = VocabularyEngToRus.MakeInvertedVocabulary()
-	AllVocabularies = []*schema.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
+	AllVocabularies = []*entity.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }

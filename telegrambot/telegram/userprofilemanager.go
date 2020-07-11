@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/entity"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
@@ -58,6 +57,11 @@ func (m *UserProfileManager) AddPollAnswer(userID entity.UserID, pollAnswer *ent
 	return nil
 }
 
+func (m *UserProfileManager) GetUserProfile(userID entity.UserID) (*entity.UserProfile, bool) {
+	userProfile, found := m.userProfiles[userID]
+	return userProfile, found
+}
+
 func (m *UserProfileManager) initUserProfiles() {
 	users, err := m.userDAO.FindAll()
 	if err != nil {
@@ -78,7 +82,7 @@ func (m *UserProfileManager) initUserProfiles() {
 	}
 }
 
-func (m *UserProfileManager) updateUserProfiles(userID entity.UserID, term schema.Term, correctlyTranslated bool) {
+func (m *UserProfileManager) updateUserProfiles(userID entity.UserID, term entity.Term, correctlyTranslated bool) {
 	if _, found := m.userProfiles[userID]; !found {
 		m.userProfiles[userID] = entity.NewUserProfile(userID)
 	}

@@ -84,41 +84,11 @@ func (b *Bot) Run() {
 		}
 	}()
 	b.api.SetMessagesHandler(func(message *entity.Message) error {
-		if _, found := chatsStates[message.ChatID]; !found {
-			chatsStates[message.ChatID] = entity.NewChat(message.ChatID)
-		}
-		chat := chatsStates[message.ChatID]
+		b.api.UpdateInternalState(message)
 		switch message.Text {
 		case "/help", "/start":
 			b.api.SendHTMLMessage(message.ChatID, helpText)
 			return nil
-		case "/debug true":
-			chat.SetDebug(true)
-		case "/debug false":
-			chat.SetDebug(false)
-		case fmt.Sprintf("/%s", entity.ChatModeRandom):
-			chat.SetMode(entity.ChatModeRandom)
-		case fmt.Sprintf("/%s", entity.ChatModeEngToRus):
-			chat.SetMode(entity.ChatModeEngToRus)
-		case fmt.Sprintf("/%s", entity.ChatModeRusToEng):
-			chat.SetMode(entity.ChatModeRusToEng)
-		case fmt.Sprintf("/%s", entity.ChatVocabularyAll):
-			chat.SetVocabulary(entity.ChatVocabularyAll)
-		case fmt.Sprintf("/%s", entity.ChatVocabularyPauline):
-			chat.SetVocabulary(entity.ChatVocabularyPauline)
-		case fmt.Sprintf("/%s", entity.ChatVocabularyPhrasalVerbs):
-			chat.SetVocabulary(entity.ChatVocabularyPhrasalVerbs)
-		case fmt.Sprintf("/%s", entity.ChatVocabularySuperlativeAdjectives):
-			chat.SetVocabulary(entity.ChatVocabularySuperlativeAdjectives)
-		case fmt.Sprintf("/%s", entity.ChatVocabularyBody):
-			chat.SetVocabulary(entity.ChatVocabularyBody)
-		case fmt.Sprintf("/%s", entity.ChatVocabularyIdioms):
-			chat.SetVocabulary(entity.ChatVocabularyIdioms)
-		case fmt.Sprintf("/%s", entity.ChatVocabularyLesson):
-			chat.SetVocabulary(entity.ChatVocabularyLesson)
-		}
-		if chat.IsDebuggingEnabled() {
-			b.sendDebugMessage(chat, message.User)
 		}
 		return b.api.SendNextPoll(message.User)
 	})
@@ -139,13 +109,4 @@ func (b *Bot) serve() {
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 	<-signals
 	b.api.SendAlert(fmt.Sprintf("%s stopped", botMention))
-}
-
-func (b *Bot) sendDebugMessage(chat *entity.Chat, user *entity.User) {
-	debugMessage := fmt.Sprintf("\nUser: %s", user.GetFormattedName())
-	debugMessage += fmt.Sprintf("\nChat ID: %d", chat.GetID())
-	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
-	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
-	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
-	b.api.SendAlert(debugMessage)
 }

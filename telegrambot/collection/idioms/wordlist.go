@@ -1,11 +1,11 @@
 package idioms
 
 import (
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyIdioms = schema.NewVocabulary(
-	map[schema.Term][]schema.Translation{
+var VocabularyIdioms = entity.NewVocabulary(
+	map[entity.Term][]entity.Translation{
 		"elbow grease":       {"работа до 7 пота"},
 		"get off my chest":   {"избавиться от тяжелого бремени"},
 		"hard to stomach":    {"тяжело терпеть"},
@@ -16,13 +16,13 @@ var VocabularyIdioms = schema.NewVocabulary(
 	},
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
-var AllVocabularies []*schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
+var AllVocabularies []*entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(VocabularyIdioms)
 	VocabularyRusToEng = VocabularyEngToRus.MakeInvertedVocabulary()
-	AllVocabularies = []*schema.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
+	AllVocabularies = []*entity.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }

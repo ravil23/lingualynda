@@ -9,7 +9,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/ravil23/lingualynda/telegrambot/collection"
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
 	"github.com/ravil23/lingualynda/telegrambot/entity"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
@@ -31,6 +30,7 @@ type API interface {
 	SendAlert(text string)
 	SendMessage(chatID entity.ChatID, text string)
 	SendHTMLMessage(chatID entity.ChatID, text string)
+	UpdateInternalState(message *entity.Message)
 }
 
 var _ API = (*api)(nil)
@@ -43,6 +43,7 @@ type api struct {
 
 	userDAO dao.UserDAO
 
+	chatManager        *ChatManager
 	userProfileManager *UserProfileManager
 
 	messagesHandler    func(update *tgbotapi.Update) error
@@ -81,6 +82,7 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 
 		userDAO: userDAO,
 
+		chatManager:        NewChatManager(),
 		userProfileManager: userProfileManager,
 	}, nil
 }
@@ -156,14 +158,19 @@ func (api *api) SendNextPoll(user *entity.User) error {
 }
 
 func (api *api) getNextPoll(user *entity.User) *entity.Poll {
-	var listOfVocabularies []*schema.Vocabulary
-	if chat, found := chatsStates[user.ChatID]; found && len(chat.GetVocabularies()) > 0 {
+	var listOfVocabularies []*entity.Vocabulary
+	if chat, found := api.chatManager.GetChat(user.ChatID); found {
 		listOfVocabularies = chat.GetVocabularies()
 	} else {
-		listOfVocabularies = []*schema.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
+		listOfVocabularies = []*entity.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
 	}
 	selectedVocabulary := listOfVocabularies[rand.Intn(len(listOfVocabularies))]
-	term := selectedVocabulary.GetRandomTerm()
+	var term entity.Term
+	if userProfile, found := api.userProfileManager.GetUserProfile(user.ID); found {
+		term = selectedVocabulary.GetTermByUserProfile(userProfile)
+	} else {
+		term = selectedVocabulary.GetRandomTerm()
+	}
 	correctTranslations := selectedVocabulary.GetTranslations(term)
 	correctTranslation := correctTranslations[rand.Intn(len(correctTranslations))]
 	poll := &entity.Poll{
@@ -216,6 +223,22 @@ func (api *api) sendMessage(chatID entity.ChatID, text string, parseMode string)
 	if err != nil {
 		log.Printf("Error on sending message: %s", err)
 	}
+}
+
+func (api *api) UpdateInternalState(message *entity.Message) {
+	chat := api.chatManager.UpdateChatConfigurations(message.ChatID, message.Text)
+	if chat.IsDebuggingEnabled() {
+		api.sendDebugMessage(chat, message.User)
+	}
+}
+
+func (api *api) sendDebugMessage(chat *entity.Chat, user *entity.User) {
+	debugMessage := fmt.Sprintf("\nUser: %s", user.GetFormattedName())
+	debugMessage += fmt.Sprintf("\nChat ID: %d", chat.GetID())
+	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
+	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
+	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
+	api.SendAlert(debugMessage)
 }
 
 func GetBotTokenOrPanic() string {

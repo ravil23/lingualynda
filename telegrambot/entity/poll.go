@@ -2,8 +2,6 @@ package entity
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 )
 
 type PollID string
@@ -19,7 +17,7 @@ func (t PollType) String() string {
 }
 
 type PollOption struct {
-	Translation schema.Translation
+	Translation Translation
 	IsCorrect   bool
 }
 
@@ -28,7 +26,7 @@ type Poll struct {
 	Type     PollType
 	IsPublic bool
 
-	Term    schema.Term
+	Term    Term
 	Options []*PollOption
 }
 

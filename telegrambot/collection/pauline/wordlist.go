@@ -7,27 +7,27 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit4"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit5"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit6"
-	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 )
 
-var VocabularyEngToRus *schema.Vocabulary
-var VocabularyRusToEng *schema.Vocabulary
-var AllVocabularies []*schema.Vocabulary
+var VocabularyEngToRus *entity.Vocabulary
+var VocabularyRusToEng *entity.Vocabulary
+var AllVocabularies []*entity.Vocabulary
 
 func init() {
-	VocabularyEngToRus = schema.NewEmptyVocabulary().
+	VocabularyEngToRus = entity.NewEmptyVocabulary().
 		Update(paulineunit1.VocabularyEngToRus).
 		Update(paulineunit2.VocabularyEngToRus).
 		Update(paulineunit3.VocabularyEngToRus).
 		Update(paulineunit4.VocabularyEngToRus).
 		Update(paulineunit5.VocabularyEngToRus).
 		Update(paulineunit6.VocabularyEngToRus)
-	VocabularyRusToEng = schema.NewEmptyVocabulary().
+	VocabularyRusToEng = entity.NewEmptyVocabulary().
 		Update(paulineunit1.VocabularyRusToEng).
 		Update(paulineunit2.VocabularyRusToEng).
 		Update(paulineunit3.VocabularyRusToEng).
 		Update(paulineunit4.VocabularyRusToEng).
 		Update(paulineunit5.VocabularyRusToEng).
 		Update(paulineunit6.VocabularyRusToEng)
-	AllVocabularies = []*schema.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
+	AllVocabularies = []*entity.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }
