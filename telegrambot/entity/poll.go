@@ -31,6 +31,15 @@ type Poll struct {
 	Options []*PollOption
 }
 
+func (p *Poll) IsExistedOption(translation Translation) bool {
+	for _, pollOption := range p.Options {
+		if translation == pollOption.Translation {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Poll) AllIsCorrect(chosenOptionIndexes []int) bool {
 	for _, index := range chosenOptionIndexes {
 		if !p.Options[index].IsCorrect {

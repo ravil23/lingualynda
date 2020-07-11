@@ -204,19 +204,13 @@ func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	}
 	for len(poll.Options) < maxPollOptionsCount {
 		randomTranslation := selectedVocabulary.GetRandomTranslation()
-		isValidTranslation := true
-		for _, correctTranslation := range correctTranslations {
-			if randomTranslation == correctTranslation {
-				isValidTranslation = false
-				break
-			}
+		if poll.IsExistedOption(randomTranslation) {
+			continue
 		}
-		if isValidTranslation {
-			poll.Options = append(poll.Options, &entity.PollOption{
-				Translation: randomTranslation,
-				IsCorrect:   false,
-			})
-		}
+		poll.Options = append(poll.Options, &entity.PollOption{
+			Translation: randomTranslation,
+			IsCorrect:   false,
+		})
 	}
 	rand.Shuffle(len(poll.Options), func(i, j int) {
 		poll.Options[i], poll.Options[j] = poll.Options[j], poll.Options[i]
