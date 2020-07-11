@@ -240,7 +240,7 @@ func (api *api) sendDebugMessage(chat *entity.Chat, user *entity.User, poll *ent
 	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
 	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
 	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
-	debugMessage += fmt.Sprintf("\nPoll: %+v", poll)
+	debugMessage += fmt.Sprintf("\nPoll: %+v with weight %.3f", poll.Term, poll.Weight)
 	api.SendAlert(debugMessage)
 }
 
