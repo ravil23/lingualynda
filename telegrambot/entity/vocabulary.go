@@ -46,7 +46,7 @@ func (v *Vocabulary) GetRandomTerm() Term {
 	return v.allTerms[rand.Intn(len(v.allTerms))]
 }
 
-func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) Term {
+func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float64) {
 	weights := make(map[Term]float64, len(v.allTerms))
 	weightsSum := 0.
 	for _, term := range v.allTerms {
@@ -59,11 +59,11 @@ func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) Term {
 	for term, weight := range weights {
 		right = left + weight
 		if left <= randomPoint && randomPoint < right {
-			return term
+			return term, weight
 		}
 		left = right
 	}
-	return ""
+	return "", 0
 }
 
 func (v *Vocabulary) GetTranslations(term Term) []Translation {

@@ -154,6 +154,9 @@ func (api *api) SendNextPoll(user *entity.User) error {
 	}
 	poll.ID = entity.PollID(tgMessage.Poll.ID)
 	api.userProfileManager.AddPoll(poll)
+	if chat, found := api.chatManager.GetChat(user.ChatID); found && chat.IsDebuggingEnabled() {
+		api.sendDebugMessage(chat, user, poll)
+	}
 	return nil
 }
 
@@ -166,8 +169,9 @@ func (api *api) getNextPoll(user *entity.User) *entity.Poll {
 	}
 	selectedVocabulary := listOfVocabularies[rand.Intn(len(listOfVocabularies))]
 	var term entity.Term
+	var weight float64
 	if userProfile, found := api.userProfileManager.GetUserProfile(user.ID); found {
-		term = selectedVocabulary.GetTermByUserProfile(userProfile)
+		term, weight = selectedVocabulary.GetTermByUserProfile(userProfile)
 	} else {
 		term = selectedVocabulary.GetRandomTerm()
 	}
@@ -175,6 +179,7 @@ func (api *api) getNextPoll(user *entity.User) *entity.Poll {
 	correctTranslation := correctTranslations[rand.Intn(len(correctTranslations))]
 	poll := &entity.Poll{
 		Term:     term,
+		Weight:   weight,
 		Type:     entity.PollTypeQuiz,
 		IsPublic: true,
 		Options: []*entity.PollOption{
@@ -226,18 +231,16 @@ func (api *api) sendMessage(chatID entity.ChatID, text string, parseMode string)
 }
 
 func (api *api) UpdateInternalState(message *entity.Message) {
-	chat := api.chatManager.UpdateChatConfigurations(message.ChatID, message.Text)
-	if chat.IsDebuggingEnabled() {
-		api.sendDebugMessage(chat, message.User)
-	}
+	api.chatManager.UpdateChatConfigurations(message.ChatID, message.Text)
 }
 
-func (api *api) sendDebugMessage(chat *entity.Chat, user *entity.User) {
+func (api *api) sendDebugMessage(chat *entity.Chat, user *entity.User, poll *entity.Poll) {
 	debugMessage := fmt.Sprintf("\nUser: %s", user.GetFormattedName())
 	debugMessage += fmt.Sprintf("\nChat ID: %d", chat.GetID())
 	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
 	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
 	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
+	debugMessage += fmt.Sprintf("\nPoll: %+v", poll)
 	api.SendAlert(debugMessage)
 }
 

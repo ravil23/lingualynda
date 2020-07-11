@@ -27,6 +27,7 @@ type Poll struct {
 	IsPublic bool
 
 	Term    Term
+	Weight  float64
 	Options []*PollOption
 }
 
