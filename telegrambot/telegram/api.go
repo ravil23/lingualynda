@@ -152,7 +152,7 @@ func (api *api) SendNextPoll(user *entity.User) error {
 			vocabulary = chat.GetVocabulary()
 		}
 		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
-			"<b>Congratulation! You have memorized all terms from vocabulary %s in %s mode</b>\nPlease change vocabulary or mode.\n\n%s",
+			"<b>Congratulations!</b>\nYou have memorized all terms from <b>/%s</b> vocabulary in <b>/%s</b> mode\nPlease change vocabulary or mode.\n\n%s",
 			vocabulary,
 			mode,
 			helpText,
