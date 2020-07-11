@@ -143,8 +143,8 @@ func (api *api) ListenUpdates() error {
 }
 
 func (api *api) SendNextPoll(user *entity.User) error {
-	poll, finished := api.getNextPoll(user)
-	if finished {
+	poll, found := api.getNextPoll(user)
+	if !found {
 		var mode entity.ChatMode
 		var vocabulary entity.ChatVocabulary
 		if chat, found := api.chatManager.GetChat(user.ChatID); found {
@@ -182,13 +182,24 @@ func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	} else {
 		listOfVocabularies = []*entity.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
 	}
-	selectedVocabulary := listOfVocabularies[rand.Intn(len(listOfVocabularies))]
+	vocabularyIndex := rand.Intn(len(listOfVocabularies))
+	var selectedVocabulary *entity.Vocabulary
 	var term entity.Term
 	var weight float64
 	var finished bool
 	if userProfile, found := api.userProfileManager.GetUserProfile(user.ID); found {
-		term, weight, finished = selectedVocabulary.GetTermByUserProfile(userProfile)
+		for i := range listOfVocabularies {
+			selectedVocabulary = listOfVocabularies[(vocabularyIndex+i)%len(listOfVocabularies)]
+			term, weight, finished = selectedVocabulary.GetTermByUserProfile(userProfile)
+			if !finished {
+				break
+			}
+		}
+		if finished {
+			return nil, false
+		}
 	} else {
+		selectedVocabulary = listOfVocabularies[vocabularyIndex]
 		term = selectedVocabulary.GetRandomTerm()
 	}
 	correctTranslations := selectedVocabulary.GetTranslations(term)
@@ -215,7 +226,7 @@ func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	rand.Shuffle(len(poll.Options), func(i, j int) {
 		poll.Options[i], poll.Options[j] = poll.Options[j], poll.Options[i]
 	})
-	return poll, finished
+	return poll, true
 }
 
 func (api *api) SendAlert(text string) {
