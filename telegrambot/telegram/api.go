@@ -11,6 +11,7 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection"
 	"github.com/ravil23/lingualynda/telegrambot/collection/schema"
 	"github.com/ravil23/lingualynda/telegrambot/dao"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
@@ -23,13 +24,13 @@ const (
 )
 
 type API interface {
-	SetMessagesHandler(handlerFunc func(*dao.Message) error)
-	SetPollAnswersHandler(handlerFunc func(*dao.PollAnswer) error)
+	SetMessagesHandler(handlerFunc func(*entity.Message) error)
+	SetPollAnswersHandler(handlerFunc func(*entity.User, *entity.PollAnswer) error)
 	ListenUpdates() error
-	SendNextPoll(user *dao.User) error
+	SendNextPoll(user *entity.User) error
 	SendAlert(text string)
-	SendMessage(chatID dao.ChatID, text string)
-	SendHTMLMessage(chatID dao.ChatID, text string)
+	SendMessage(chatID entity.ChatID, text string)
+	SendHTMLMessage(chatID entity.ChatID, text string)
 }
 
 var _ API = (*api)(nil)
@@ -40,12 +41,9 @@ type api struct {
 	tgAPI     *tgbotapi.BotAPI
 	tgUpdates tgbotapi.UpdatesChannel
 
-	messageDAO          dao.MessageDAO
-	pollDAO             dao.PollDAO
-	pollAnswerDAO       dao.PollAnswerDAO
-	userDAO             dao.UserDAO
-	linkUserQuestionDAO dao.LinkUserQuestionDAO
-	questionDAO         dao.QuestionDAO
+	userDAO dao.UserDAO
+
+	userProfileManager *UserProfileManager
 
 	messagesHandler    func(update *tgbotapi.Update) error
 	pollAnswersHandler func(update *tgbotapi.Update) error
@@ -57,57 +55,40 @@ func NewAPI(botToken string, conn *postgres.Connection) (*api, error) {
 		hostName = "unknown_host"
 	}
 
-	botAPI, err := tgbotapi.NewBotAPI(botToken)
+	tgAPI, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
 		return nil, err
 	}
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = timeout
-	tgUpdates := botAPI.GetUpdatesChan(u)
+	tgUpdates := tgAPI.GetUpdatesChan(u)
 
 	userDAO, err := dao.NewUserDAO(conn)
 	if err != nil {
 		return nil, err
 	}
-	questionDAO, err := dao.NewQuestionDAO(conn)
+
+	userProfileManager, err := NewUserProfileManager(conn, userDAO)
 	if err != nil {
 		return nil, err
 	}
-	messageDAO, err := dao.NewMessageDAO(conn)
-	if err != nil {
-		return nil, err
-	}
-	pollDAO, err := dao.NewPollDAO(conn)
-	if err != nil {
-		return nil, err
-	}
-	pollAnswerDAO, err := dao.NewPollAnswerDAO(conn)
-	if err != nil {
-		return nil, err
-	}
-	linkUserQuestionDAO, err := dao.NewLinkUserQuestionDAO(conn)
-	if err != nil {
-		return nil, err
-	}
+
 	return &api{
 		hostName:  hostName,
 		tgUpdates: tgUpdates,
+		tgAPI:     tgAPI,
 
-		tgAPI:               botAPI,
-		messageDAO:          messageDAO,
-		pollDAO:             pollDAO,
-		pollAnswerDAO:       pollAnswerDAO,
-		userDAO:             userDAO,
-		linkUserQuestionDAO: linkUserQuestionDAO,
-		questionDAO:         questionDAO,
+		userDAO: userDAO,
+
+		userProfileManager: userProfileManager,
 	}, nil
 }
 
-func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
+func (api *api) SetMessagesHandler(handlerFunc func(*entity.Message) error) {
 	api.messagesHandler = func(update *tgbotapi.Update) error {
-		user := dao.NewUser(update.Message.From)
-		user.ChatID = dao.ChatID(update.Message.Chat.ID)
+		user := entity.NewUser(update.Message.From)
+		user.ChatID = entity.ChatID(update.Message.Chat.ID)
 		if err := api.userDAO.Upsert(user); err != nil {
 			return err
 		}
@@ -116,10 +97,7 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 			api.SendAlert(fmt.Sprintf("%s started conversation with %s", user.GetFormattedName(), botMention))
 		}
 
-		message := dao.NewMessage(update.Message, user)
-		if err := api.messageDAO.Upsert(message); err != nil {
-			return err
-		}
+		message := entity.NewMessage(update.Message, user)
 
 		if err := handlerFunc(message); err != nil {
 			return err
@@ -128,24 +106,26 @@ func (api *api) SetMessagesHandler(handlerFunc func(*dao.Message) error) {
 	}
 }
 
-func (api *api) SetPollAnswersHandler(handlerFunc func(*dao.PollAnswer) error) {
+func (api *api) SetPollAnswersHandler(handlerFunc func(*entity.User, *entity.PollAnswer) error) {
 	api.pollAnswersHandler = func(update *tgbotapi.Update) error {
-		user := dao.NewUser(&update.PollAnswer.User)
-		if err := api.userDAO.Upsert(user); err != nil {
+		user, err := api.userDAO.Find(entity.UserID(update.PollAnswer.User.ID))
+		if err != nil {
 			return err
 		}
 
-		pollAnswer := dao.NewPollAnswer(update.PollAnswer, user)
-		if err := api.pollAnswerDAO.Upsert(pollAnswer); err != nil {
+		pollAnswer := entity.NewPollAnswer(update.PollAnswer)
+
+		if err := api.userProfileManager.AddPollAnswer(user.ID, pollAnswer); err != nil {
 			return err
 		}
 
-		return handlerFunc(pollAnswer)
+		return handlerFunc(user, pollAnswer)
 	}
 }
 
 func (api *api) ListenUpdates() error {
 	for update := range api.tgUpdates {
+		log.Printf("Handle update: %+v", update)
 		if update.Message != nil {
 			if err := api.messagesHandler(&update); err != nil {
 				return err
@@ -161,44 +141,25 @@ func (api *api) ListenUpdates() error {
 	return nil
 }
 
-func (api *api) SendNextPoll(user *dao.User) error {
-	poll, err := api.getNextPoll(user)
+func (api *api) SendNextPoll(user *entity.User) error {
+	poll := api.getNextPoll(user)
+	tgPoll := poll.ToChatable(user.ChatID)
+	tgMessage, err := api.tgAPI.Send(tgPoll)
 	if err != nil {
 		return err
 	}
-
-	tgPoll := poll.ToChatable(user.ChatID)
-	_, err = api.tgAPI.Send(tgPoll)
-	return err
+	if tgMessage.Poll == nil {
+		return fmt.Errorf("returned message does not contain poll: %+v", tgMessage)
+	}
+	poll.ID = entity.PollID(tgMessage.Poll.ID)
+	api.userProfileManager.AddPoll(poll)
+	return nil
 }
 
-func (api *api) getNextPoll(user *dao.User) (*dao.Poll, error) {
-	question := generateRandomQuestion(user.ChatID)
-	if err := api.questionDAO.Upsert(question); err != nil {
-		return nil, err
-	}
-
-	linkUserQuestion := dao.NewLinkUserQuestion(question.ID, user.ID)
-	if err := api.linkUserQuestionDAO.Upsert(linkUserQuestion); err != nil {
-		return nil, err
-	}
-
-	poll := &dao.Poll{
-		Type:       dao.PollTypeQuiz,
-		QuestionID: question.ID,
-		Question:   question,
-		IsPublic:   true,
-	}
-	if err := api.pollDAO.Upsert(poll); err != nil {
-		return nil, err
-	}
-	return poll, nil
-}
-
-func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
+func (api *api) getNextPoll(user *entity.User) *entity.Poll {
 	var listOfVocabularies []*schema.Vocabulary
-	if chat, found := chatsStates[chatID]; found && len(chat.vocabularies) > 0 {
-		listOfVocabularies = chat.vocabularies
+	if chat, found := chatsStates[user.ChatID]; found && len(chat.GetVocabularies()) > 0 {
+		listOfVocabularies = chat.GetVocabularies()
 	} else {
 		listOfVocabularies = []*schema.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
 	}
@@ -206,13 +167,15 @@ func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
 	term := selectedVocabulary.GetRandomTerm()
 	correctTranslations := selectedVocabulary.GetTranslations(term)
 	correctTranslation := correctTranslations[rand.Intn(len(correctTranslations))]
-	question := &dao.Question{
-		Text: term.String(),
-		Options: []dao.Option{
-			{Text: correctTranslation.String(), IsCorrect: true},
+	poll := &entity.Poll{
+		Term:     term,
+		Type:     entity.PollTypeQuiz,
+		IsPublic: true,
+		Options: []*entity.PollOption{
+			{Translation: correctTranslation, IsCorrect: true},
 		},
 	}
-	for len(question.Options) < maxQuestionOptionsCount {
+	for len(poll.Options) < maxQuestionOptionsCount {
 		randomTranslation := selectedVocabulary.GetRandomTranslation()
 		isValidTranslation := true
 		for _, correctTranslation := range correctTranslations {
@@ -222,32 +185,32 @@ func generateRandomQuestion(chatID dao.ChatID) *dao.Question {
 			}
 		}
 		if isValidTranslation {
-			question.Options = append(question.Options, dao.Option{
-				Text:      randomTranslation.String(),
-				IsCorrect: false,
+			poll.Options = append(poll.Options, &entity.PollOption{
+				Translation: randomTranslation,
+				IsCorrect:   false,
 			})
 		}
 	}
-	rand.Shuffle(len(question.Options), func(i, j int) {
-		question.Options[i], question.Options[j] = question.Options[j], question.Options[i]
+	rand.Shuffle(len(poll.Options), func(i, j int) {
+		poll.Options[i], poll.Options[j] = poll.Options[j], poll.Options[i]
 	})
-	return question
+	return poll
 }
 
 func (api *api) SendAlert(text string) {
 	api.SendMessage(alertsChatID, fmt.Sprintf("[%s] %s", api.hostName, text))
 }
 
-func (api *api) SendMessage(chatID dao.ChatID, text string) {
+func (api *api) SendMessage(chatID entity.ChatID, text string) {
 	api.sendMessage(chatID, text, "")
 }
 
-func (api *api) SendHTMLMessage(chatID dao.ChatID, text string) {
+func (api *api) SendHTMLMessage(chatID entity.ChatID, text string) {
 	api.sendMessage(chatID, text, tgbotapi.ModeHTML)
 }
 
-func (api *api) sendMessage(chatID dao.ChatID, text string, parseMode string) {
-	log.Print(text)
+func (api *api) sendMessage(chatID entity.ChatID, text string, parseMode string) {
+	log.Printf("Chat ID: %d, Parse mode: %s, Text: %s", chatID, parseMode, text)
 	tgMessage := tgbotapi.NewMessage(int64(chatID), text)
 	tgMessage.ParseMode = parseMode
 	_, err := api.tgAPI.Send(tgMessage)

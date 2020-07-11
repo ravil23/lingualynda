@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ravil23/lingualynda/telegrambot/dao"
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
@@ -22,17 +22,17 @@ const (
 var helpText = strings.Join([]string{
 	"<b>Vocabularies</b>",
 	"/all - All words",
-	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", vocabularyPauline),
-	fmt.Sprintf("/%s - Only phrasal verbs", vocabularyPhrasalVerbs),
-	fmt.Sprintf("/%s - Only superlative adjectives", vocabularySuperlativeAdjectives),
-	fmt.Sprintf("/%s - Only words about body", vocabularyBody),
-	fmt.Sprintf("/%s - Only idioms", vocabularyIdioms),
-	fmt.Sprintf("/%s - Only words from lesson", vocabularyLesson),
+	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", entity.ChatVocabularyPauline),
+	fmt.Sprintf("/%s - Only phrasal verbs", entity.ChatVocabularyPhrasalVerbs),
+	fmt.Sprintf("/%s - Only superlative adjectives", entity.ChatVocabularySuperlativeAdjectives),
+	fmt.Sprintf("/%s - Only words about body", entity.ChatVocabularyBody),
+	fmt.Sprintf("/%s - Only idioms", entity.ChatVocabularyIdioms),
+	fmt.Sprintf("/%s - Only words from lesson", entity.ChatVocabularyLesson),
 	"",
 	"<b>Modes</b>",
-	fmt.Sprintf("/%s - Only Russian to English tasks", modeRusToEng),
-	fmt.Sprintf("/%s - Only English to Russian tasks", modeEngToRus),
-	fmt.Sprintf("/%s - Select random task for both side", modeRandom),
+	fmt.Sprintf("/%s - Only Russian to English tasks", entity.ChatModeRusToEng),
+	fmt.Sprintf("/%s - Only English to Russian tasks", entity.ChatModeEngToRus),
+	fmt.Sprintf("/%s - Select random task for both side", entity.ChatModeRandom),
 	"",
 	"<b>Tap to /next for getting new poll</b>",
 }, "\n")
@@ -83,46 +83,45 @@ func (b *Bot) Run() {
 			b.api.SendAlert(fmt.Sprintf("Recovered from panic: %s", r))
 		}
 	}()
-	b.api.SetMessagesHandler(func(message *dao.Message) error {
-		var chatsState *ChatsState
-		if state, found := chatsStates[message.ChatID]; found {
-			chatsState = state
-		} else {
-			chatsState = &ChatsState{}
-			chatsStates[message.ChatID] = chatsState
+	b.api.SetMessagesHandler(func(message *entity.Message) error {
+		if _, found := chatsStates[message.ChatID]; !found {
+			chatsStates[message.ChatID] = entity.NewChat(message.ChatID)
 		}
+		chat := chatsStates[message.ChatID]
 		switch message.Text {
 		case "/help", "/start":
 			b.api.SendHTMLMessage(message.ChatID, helpText)
 			return nil
-		case "/debug":
-			chatsState.debug = true
-		case fmt.Sprintf("/%s", modeRandom):
-			chatsState.SetMode(modeRandom)
-		case fmt.Sprintf("/%s", modeEngToRus):
-			chatsState.SetMode(modeEngToRus)
-		case fmt.Sprintf("/%s", modeRusToEng):
-			chatsState.SetMode(modeRusToEng)
-		case fmt.Sprintf("/%s", vocabularyAll):
-			chatsState.SetVocabulary(vocabularyAll)
-		case fmt.Sprintf("/%s", vocabularyPauline):
-			chatsState.SetVocabulary(vocabularyPauline)
-		case fmt.Sprintf("/%s", vocabularyPhrasalVerbs):
-			chatsState.SetVocabulary(vocabularyPhrasalVerbs)
-		case fmt.Sprintf("/%s", vocabularySuperlativeAdjectives):
-			chatsState.SetVocabulary(vocabularySuperlativeAdjectives)
-		case fmt.Sprintf("/%s", vocabularyBody):
-			chatsState.SetVocabulary(vocabularyBody)
-		case fmt.Sprintf("/%s", vocabularyIdioms):
-			chatsState.SetVocabulary(vocabularyIdioms)
-		case fmt.Sprintf("/%s", vocabularyLesson):
-			chatsState.SetVocabulary(vocabularyLesson)
+		case "/debug true":
+			chat.SetDebug(true)
+		case "/debug false":
+			chat.SetDebug(false)
+		case fmt.Sprintf("/%s", entity.ChatModeRandom):
+			chat.SetMode(entity.ChatModeRandom)
+		case fmt.Sprintf("/%s", entity.ChatModeEngToRus):
+			chat.SetMode(entity.ChatModeEngToRus)
+		case fmt.Sprintf("/%s", entity.ChatModeRusToEng):
+			chat.SetMode(entity.ChatModeRusToEng)
+		case fmt.Sprintf("/%s", entity.ChatVocabularyAll):
+			chat.SetVocabulary(entity.ChatVocabularyAll)
+		case fmt.Sprintf("/%s", entity.ChatVocabularyPauline):
+			chat.SetVocabulary(entity.ChatVocabularyPauline)
+		case fmt.Sprintf("/%s", entity.ChatVocabularyPhrasalVerbs):
+			chat.SetVocabulary(entity.ChatVocabularyPhrasalVerbs)
+		case fmt.Sprintf("/%s", entity.ChatVocabularySuperlativeAdjectives):
+			chat.SetVocabulary(entity.ChatVocabularySuperlativeAdjectives)
+		case fmt.Sprintf("/%s", entity.ChatVocabularyBody):
+			chat.SetVocabulary(entity.ChatVocabularyBody)
+		case fmt.Sprintf("/%s", entity.ChatVocabularyIdioms):
+			chat.SetVocabulary(entity.ChatVocabularyIdioms)
+		case fmt.Sprintf("/%s", entity.ChatVocabularyLesson):
+			chat.SetVocabulary(entity.ChatVocabularyLesson)
 		}
-		b.debug(chatsState)
+		b.debug(chat)
 		return b.api.SendNextPoll(message.User)
 	})
-	b.api.SetPollAnswersHandler(func(pollAnswer *dao.PollAnswer) error {
-		return b.api.SendNextPoll(pollAnswer.User)
+	b.api.SetPollAnswersHandler(func(user *entity.User, _ *entity.PollAnswer) error {
+		return b.api.SendNextPoll(user)
 	})
 	b.serve()
 }
@@ -140,12 +139,14 @@ func (b *Bot) serve() {
 	b.api.SendAlert(fmt.Sprintf("%s stopped", botMention))
 }
 
-func (b *Bot) debug(chatsState *ChatsState) {
-	if chatsState.debug {
-		debugMessage := fmt.Sprintf("\nSelected mode: '%s'", chatsState.mode)
-		debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(chatsState.vocabularies))
+func (b *Bot) debug(chat *entity.Chat) {
+	if chat.IsDebuggingEnabled() {
+		vocabularies := chat.GetVocabularies()
+		debugMessage := fmt.Sprintf("\nChat ID: %d", chat.GetID())
+		debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
+		debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(vocabularies))
 		debugMessage += fmt.Sprintf("\nExample term and translations:")
-		for _, vocabulary := range chatsState.vocabularies {
+		for _, vocabulary := range vocabularies {
 			term := vocabulary.GetRandomTerm()
 			debugMessage += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
 		}

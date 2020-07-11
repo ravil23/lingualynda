@@ -1,56 +1,16 @@
 package dao
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/go-pg/pg/v9/orm"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	"github.com/ravil23/lingualynda/telegrambot/entity"
 	"github.com/ravil23/lingualynda/telegrambot/postgres"
 )
 
-type UserID int
-
-type User struct {
-	tableName struct{} `pg:"user,alias:u"`
-
-	ID        UserID    `pg:"id,pk"`
-	NickName  string    `pg:"nick_name"`
-	FirstName string    `pg:"first_name"`
-	LastName  string    `pg:"last_name"`
-	ChatID    ChatID    `pg:"chat_id"`
-	CreatedAt time.Time `pg:"created_at,default:now()"`
-	UpdatedAt time.Time `pg:"updated_at,default:now()"`
-}
-
-func (u *User) GetFormattedName() string {
-	userString := fmt.Sprintf("[id=%d]", u.ID)
-	if u.NickName != "" {
-		userString = "@" + u.NickName + " " + userString
-	}
-	if u.LastName != "" {
-		userString = u.LastName + " " + userString
-	}
-	if u.FirstName != "" {
-		userString = u.FirstName + " " + userString
-	}
-	return userString
-}
-
-func NewUser(tgUser *tgbotapi.User) *User {
-	return &User{
-		ID:        UserID(tgUser.ID),
-		NickName:  tgUser.UserName,
-		FirstName: tgUser.FirstName,
-		LastName:  tgUser.LastName,
-	}
-}
-
 type UserDAO interface {
-	Find(userID UserID) (*User, error)
-	Upsert(user *User) error
-	Delete(userID UserID) error
+	Find(userID entity.UserID) (*entity.User, error)
+	FindAll() ([]*entity.User, error)
+	Upsert(user *entity.User) error
 }
 
 var _ UserDAO = (*userDAO)(nil)
@@ -74,11 +34,11 @@ func (dao *userDAO) ensureSchema() error {
 		IfNotExists:   true,
 		FKConstraints: true,
 	}
-	return dao.conn.CreateTable((*User)(nil), options)
+	return dao.conn.CreateTable((*entity.User)(nil), options)
 }
 
-func (dao *userDAO) Find(userID UserID) (*User, error) {
-	user := &User{ID: userID}
+func (dao *userDAO) Find(userID entity.UserID) (*entity.User, error) {
+	user := &entity.User{ID: userID}
 	err := dao.conn.Select(user)
 	if err != nil {
 		return nil, err
@@ -86,12 +46,17 @@ func (dao *userDAO) Find(userID UserID) (*User, error) {
 	return user, nil
 }
 
-func (dao *userDAO) Delete(userID UserID) error {
-	user := &User{ID: userID}
-	return dao.conn.Delete(user)
+func (dao *userDAO) FindAll() ([]*entity.User, error) {
+	var users []*entity.User
+	err := dao.conn.Model(&users).
+		Select()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
-func (dao *userDAO) Upsert(user *User) error {
+func (dao *userDAO) Upsert(user *entity.User) error {
 	_, err := dao.conn.Model(user).
 		OnConflict("(id) DO UPDATE").
 		Set("updated_at = now()").
