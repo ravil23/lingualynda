@@ -143,7 +143,22 @@ func (api *api) ListenUpdates() error {
 }
 
 func (api *api) SendNextPoll(user *entity.User) error {
-	poll := api.getNextPoll(user)
+	poll, finished := api.getNextPoll(user)
+	if finished {
+		var mode entity.ChatMode
+		var vocabulary entity.ChatVocabulary
+		if chat, found := api.chatManager.GetChat(user.ChatID); found {
+			mode = chat.GetMode()
+			vocabulary = chat.GetVocabulary()
+		}
+		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
+			"<b>Congratulation! You have memorized all terms from vocabulary %s in %s mode</b>\nPlease change vocabulary or mode.\n\n%s",
+			vocabulary,
+			mode,
+			helpText,
+		))
+		return nil
+	}
 	tgPoll := poll.ToChatable(user.ChatID)
 	tgMessage, err := api.tgAPI.Send(tgPoll)
 	if err != nil {
@@ -160,7 +175,7 @@ func (api *api) SendNextPoll(user *entity.User) error {
 	return nil
 }
 
-func (api *api) getNextPoll(user *entity.User) *entity.Poll {
+func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	var listOfVocabularies []*entity.Vocabulary
 	if chat, found := api.chatManager.GetChat(user.ChatID); found {
 		listOfVocabularies = chat.GetVocabularies()
@@ -170,8 +185,9 @@ func (api *api) getNextPoll(user *entity.User) *entity.Poll {
 	selectedVocabulary := listOfVocabularies[rand.Intn(len(listOfVocabularies))]
 	var term entity.Term
 	var weight float64
+	var finished bool
 	if userProfile, found := api.userProfileManager.GetUserProfile(user.ID); found {
-		term, weight = selectedVocabulary.GetTermByUserProfile(userProfile)
+		term, weight, finished = selectedVocabulary.GetTermByUserProfile(userProfile)
 	} else {
 		term = selectedVocabulary.GetRandomTerm()
 	}
@@ -205,7 +221,7 @@ func (api *api) getNextPoll(user *entity.User) *entity.Poll {
 	rand.Shuffle(len(poll.Options), func(i, j int) {
 		poll.Options[i], poll.Options[j] = poll.Options[j], poll.Options[i]
 	})
-	return poll
+	return poll, finished
 }
 
 func (api *api) SendAlert(text string) {

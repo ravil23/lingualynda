@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"math"
 	"math/rand"
 )
 
@@ -46,24 +47,27 @@ func (v *Vocabulary) GetRandomTerm() Term {
 	return v.allTerms[rand.Intn(len(v.allTerms))]
 }
 
-func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float64) {
+func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float64, bool) {
 	weights := make(map[Term]float64, len(v.allTerms))
 	weightsSum := 0.
+	weightsMax := 0.
 	for _, term := range v.allTerms {
 		weight := userProfile.GetMemorizationWeight(term)
 		weights[term] = weight
 		weightsSum += weight
+		weightsMax = math.Max(weightsMax, weight)
 	}
 	randomPoint := rand.Float64() * weightsSum
+	allTermsMemorized := weightsMax < 1
 	var left, right float64
 	for term, weight := range weights {
 		right = left + weight
 		if left <= randomPoint && randomPoint < right {
-			return term, weight
+			return term, weight, allTermsMemorized
 		}
 		left = right
 	}
-	return "", 0
+	return "", 0, false
 }
 
 func (v *Vocabulary) GetTranslations(term Term) []Translation {
