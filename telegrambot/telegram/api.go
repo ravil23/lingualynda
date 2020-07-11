@@ -136,7 +136,6 @@ func (api *api) ListenUpdates() error {
 				return err
 			}
 		}
-
 	}
 	return nil
 }

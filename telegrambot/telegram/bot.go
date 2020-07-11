@@ -141,15 +141,10 @@ func (b *Bot) serve() {
 
 func (b *Bot) debug(chat *entity.Chat) {
 	if chat.IsDebuggingEnabled() {
-		vocabularies := chat.GetVocabularies()
 		debugMessage := fmt.Sprintf("\nChat ID: %d", chat.GetID())
 		debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
-		debugMessage += fmt.Sprintf("\nSelected vocabulary size: %d", len(vocabularies))
-		debugMessage += fmt.Sprintf("\nExample term and translations:")
-		for _, vocabulary := range vocabularies {
-			term := vocabulary.GetRandomTerm()
-			debugMessage += fmt.Sprintf("\n %s - %s", term, vocabulary.GetTranslations(term))
-		}
+		debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
+		debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
 		b.api.SendAlert(debugMessage)
 	}
 }
