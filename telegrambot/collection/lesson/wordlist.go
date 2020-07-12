@@ -18,6 +18,7 @@ var VocabularyAdjectives = entity.NewVocabulary(
 		"dissatisfied": {"недовольный"},
 		"edible":       {"съедобный"},
 		"enthusiastic": {"восторженный"},
+		"folk":         {"народный"},
 		"foreign":      {"иностранный"},
 		"frustrated":   {"расстроенный", "разочарованный"},
 		"greasy":       {"жирный"},
@@ -38,7 +39,8 @@ var VocabularyAdjectives = entity.NewVocabulary(
 
 var VocabularyAdverbs = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
-		"in advance": {"заранее", "заблаговременно", "наперед"},
+		"in advance":     {"заранее", "заблаговременно", "наперед"},
+		"overwhelmingly": {"преимущественно"},
 	},
 )
 
@@ -46,6 +48,7 @@ var VocabularyNouns = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
 		"betrayal":      {"предательство"},
 		"chariot":       {"колесница"},
+		"contentment":   {"удовлетворенность"},
 		"gossip":        {"сплетни"},
 		"guilt":         {"вина"},
 		"hide-and-seek": {"прятки"},
@@ -55,9 +58,11 @@ var VocabularyNouns = entity.NewVocabulary(
 		"mate":          {"приятель"},
 		"misery":        {"страдание", "горе", "беда", "мучение"},
 		"nausea":        {"тошнота"},
+		"proving":       {"доказательство"},
 		"slave":         {"раб"},
 		"stroll":        {"прогулка"},
 		"tears":         {"слезы"},
+		"violence":      {"насилие", "жестокость"},
 		"well":          {"колодец"},
 	},
 )
