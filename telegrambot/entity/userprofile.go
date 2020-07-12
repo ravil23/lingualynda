@@ -1,6 +1,9 @@
 package entity
 
-const fineCoefficientForMistake = 10
+const (
+	fineCoefficientForCorrect = 0.1
+	fineCoefficientForMistake = 10
+)
 
 type UserProfile struct {
 	userID                    UserID
@@ -27,9 +30,12 @@ func (p *UserProfile) AddMistakenlyTranslatedTerm(term Term) {
 func (p *UserProfile) GetMemorizationWeight(term Term) float64 {
 	correctTranslations := p.correctlyTranslatedTerms[term]
 	mistakeTranslations := p.mistakenlyTranslatedTerms[term]
-	if mistakeTranslations > correctTranslations {
-		return fineCoefficientForMistake * float64(mistakeTranslations-correctTranslations)
+	diff := float64(correctTranslations - mistakeTranslations)
+	if diff == 0 {
+		return 1
+	} else if diff < 0 {
+		return fineCoefficientForMistake * -diff
 	} else {
-		return 1 / float64(1+(correctTranslations-mistakeTranslations))
+		return fineCoefficientForCorrect * 1 / (1 + diff)
 	}
 }
