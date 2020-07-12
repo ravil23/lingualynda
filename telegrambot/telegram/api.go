@@ -238,13 +238,10 @@ func (api *api) SendProgress(user *entity.User) {
 	userProfile, found := api.userProfileManager.GetUserProfile(user.ID)
 	totalTermsCount := 0
 	correctMemorizedTermsCount := 0
-	for i, vocabulary := range listOfVocabularies {
+	for _, vocabulary := range listOfVocabularies {
 		totalTermsCount += vocabulary.GetTermsCount()
 		if found {
-			count := vocabulary.GetCorrectMemorizedTermsCount(userProfile)
-			api.SendMessage(user.ChatID, fmt.Sprintf("[%d] Correct memorized terms count %d / %d", i, count, vocabulary.GetTermsCount()))
-			correctMemorizedTermsCount += count
-			//correctMemorizedTermsCount += vocabulary.GetCorrectMemorizedTermsCount(userProfile) // TODO
+			correctMemorizedTermsCount += vocabulary.GetCorrectMemorizedTermsCount(userProfile)
 		}
 	}
 	text := fmt.Sprintf(

@@ -34,8 +34,9 @@ var helpText = strings.Join([]string{
 	fmt.Sprintf("/%s - Only English to Russian tasks", entity.ChatModeEngToRus),
 	fmt.Sprintf("/%s - Select random task for both side", entity.ChatModeRandom),
 	"",
-	"<b>Status</b>",
-	"/progress - get current progress in selected vocabulary and mode",
+	"<b>Information</b>",
+	"/progress - show current progress in selected vocabulary and mode",
+	"/help - show this help message",
 	"",
 	"<b>Tap to /next for getting new poll</b>",
 }, "\n")
