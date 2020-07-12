@@ -150,13 +150,15 @@ func (api *api) SendNextPoll(user *entity.User) error {
 		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
 			strings.Join([]string{
 				"<b>Congratulations!</b>",
-				"You have memorized all terms from /%s vocabulary in /%s mode.",
+				fmt.Sprintf(
+					"You have memorized all terms from /%s vocabulary in /%s mode.",
+					chat.GetVocabularyType(),
+					chat.GetMode(),
+				),
 				api.getProgressByUser(user),
 				"",
 				"Please change vocabulary or mode. Type /help to see instructions.",
 			}, "\n"),
-			chat.GetVocabularyType(),
-			chat.GetMode(),
 		))
 		return nil
 	}
@@ -240,7 +242,6 @@ func (api *api) getProgressByUser(user *entity.User) string {
 		}
 		otherChat := entity.NewChat(0)
 		api.chatManager.SetupChatConfiguration(otherChat, entity.ChatModeAllDirections, vocabularyType)
-		api.sendDebugMessage(otherChat, user, nil)
 		otherTexts = append(otherTexts, api.getProgressByChat(otherChat, userProfile, true))
 	}
 	return strings.Join([]string{
