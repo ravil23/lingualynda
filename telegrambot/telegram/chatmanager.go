@@ -34,7 +34,13 @@ func (m *ChatManager) GetChatOrCreate(chatID entity.ChatID) *entity.Chat {
 func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string) *entity.Chat {
 	chat := m.GetChatOrCreate(chatID)
 	chat.ConfigureFromText(text)
-	switch chat.GetVocabularyType() {
+	m.SetupChatConfiguration(chat, chat.GetMode(), chat.GetVocabularyType())
+	return chat
+}
+
+func (m *ChatManager) SetupChatConfiguration(chat *entity.Chat, mode entity.ChatMode, vocabularyType entity.ChatVocabularyType) {
+	chat.Configure(chat.IsDebuggingEnabled(), mode, vocabularyType)
+	switch vocabularyType {
 	case entity.ChatVocabularyTypeAllTerms:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
@@ -101,5 +107,4 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 	default:
 		chat.SetVocabularies(collection.AllVocabularies...)
 	}
-	return chat
 }

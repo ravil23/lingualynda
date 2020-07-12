@@ -238,7 +238,7 @@ func (api *api) getProgressByUser(user *entity.User) string {
 			continue
 		}
 		otherChat := entity.NewChat(0)
-		otherChat.Configure(false, entity.ChatModeAllDirections, vocabularyType)
+		api.chatManager.SetupChatConfiguration(otherChat, entity.ChatModeAllDirections, vocabularyType)
 		otherTexts = append(otherTexts, api.getProgressByChat(otherChat, userProfile))
 	}
 	return strings.Join([]string{
