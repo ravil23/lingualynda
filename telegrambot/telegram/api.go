@@ -245,7 +245,7 @@ func (api *api) SendProgress(user *entity.User) {
 		}
 	}
 	text := fmt.Sprintf(
-		"Progress of /%s vocabulary in /%s mode is %.1f%% (%d from %d)",
+		"Progress of /%s vocabulary in /%s mode is %.1f%% (%d terms from %d memorized)",
 		chat.GetVocabularyType(),
 		chat.GetMode(),
 		100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
