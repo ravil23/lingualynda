@@ -36,7 +36,7 @@ var helpText = strings.Join([]string{
 	"",
 	"<b>Information</b>",
 	"/progress - show current progress in selected vocabulary and mode",
-	"/help - show this help message",
+	"/help - show this description of usage",
 	"",
 	"<b>Tap to /next for getting new poll</b>",
 }, "\n")
