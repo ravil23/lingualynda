@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
@@ -153,10 +154,14 @@ func (api *api) SendNextPoll(user *entity.User) error {
 			vocabularyType = chat.GetVocabularyType()
 		}
 		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
-			"<b>Congratulations!</b>\nYou have memorized all terms from /%s vocabulary in /%s mode. Please change vocabulary or mode.\n\n%s",
+			strings.Join([]string{
+				"<b>Congratulations!</b>",
+				"You have memorized all terms from /%s vocabulary in /%s mode.",
+
+				"Please change vocabulary or mode. Type /help to see instructions.",
+			}, "\n"),
 			vocabularyType,
 			mode,
-			helpText,
 		))
 		return nil
 	}
@@ -179,7 +184,7 @@ func (api *api) SendNextPoll(user *entity.User) error {
 func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	listOfVocabularies, _ := api.getListOfChatsVocabularies(user.ChatID)
 	vocabularyIndex := rand.Intn(len(listOfVocabularies))
-	var selectedVocabulary *entity.Vocabulary
+	selectedVocabulary := listOfVocabularies[vocabularyIndex]
 	var term entity.Term
 	var weight float64
 	var finished bool
@@ -195,7 +200,6 @@ func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 			return nil, false
 		}
 	} else {
-		selectedVocabulary = listOfVocabularies[vocabularyIndex]
 		term = selectedVocabulary.GetRandomTerm()
 	}
 	correctTranslations := selectedVocabulary.GetTranslations(term)
