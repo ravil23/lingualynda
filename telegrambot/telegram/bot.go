@@ -21,7 +21,7 @@ const (
 
 var helpText = strings.Join([]string{
 	"<b>Vocabularies</b>",
-	"/all - All words",
+	fmt.Sprintf("/%s - All words", entity.ChatVocabularyTypeAll),
 	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", entity.ChatVocabularyTypePauline),
 	fmt.Sprintf("/%s - Only phrasal verbs", entity.ChatVocabularyTypePhrasalVerbs),
 	fmt.Sprintf("/%s - Only superlative adjectives", entity.ChatVocabularyTypeSuperlativeAdjectives),
@@ -30,9 +30,9 @@ var helpText = strings.Join([]string{
 	fmt.Sprintf("/%s - Only words from lesson", entity.ChatVocabularyTypeLesson),
 	"",
 	"<b>Modes</b>",
+	fmt.Sprintf("/%s - All tasks", entity.ChatModeAll),
 	fmt.Sprintf("/%s - Only Russian to English tasks", entity.ChatModeRusToEng),
 	fmt.Sprintf("/%s - Only English to Russian tasks", entity.ChatModeEngToRus),
-	fmt.Sprintf("/%s - Select random task for both side", entity.ChatModeRandom),
 	"",
 	"<b>Information</b>",
 	"/progress - show current progress in selected vocabulary and mode",

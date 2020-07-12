@@ -9,11 +9,11 @@ type ChatMode string
 type ChatVocabularyType string
 
 const (
-	ChatModeRandom   = ChatMode("random")
+	ChatModeAll      = ChatMode("alltasks")
 	ChatModeEngToRus = ChatMode("eng2rus")
 	ChatModeRusToEng = ChatMode("rus2eng")
 
-	ChatVocabularyTypeAll                   = ChatVocabularyType("all")
+	ChatVocabularyTypeAll                   = ChatVocabularyType("allvocabularies")
 	ChatVocabularyTypePauline               = ChatVocabularyType("pauline")
 	ChatVocabularyTypePhrasalVerbs          = ChatVocabularyType("phrasalverbs")
 	ChatVocabularyTypeSuperlativeAdjectives = ChatVocabularyType("superlativeadjectives")
@@ -21,7 +21,7 @@ const (
 	ChatVocabularyTypeIdioms                = ChatVocabularyType("idioms")
 	ChatVocabularyTypeLesson                = ChatVocabularyType("lesson")
 
-	defaultChatMode           = ChatModeRandom
+	defaultChatMode           = ChatModeAll
 	defaultChatVocabularyType = ChatVocabularyTypeAll
 )
 
@@ -47,8 +47,8 @@ func (c *Chat) Configure(text string) {
 		c.debug = true
 	case "/debug false":
 		c.debug = false
-	case fmt.Sprintf("/%s", ChatModeRandom):
-		c.mode = ChatModeRandom
+	case fmt.Sprintf("/%s", ChatModeAll):
+		c.mode = ChatModeAll
 	case fmt.Sprintf("/%s", ChatModeEngToRus):
 		c.mode = ChatModeEngToRus
 	case fmt.Sprintf("/%s", ChatModeRusToEng):
