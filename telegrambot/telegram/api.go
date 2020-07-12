@@ -203,7 +203,7 @@ func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	poll := &entity.Poll{
 		Term:     term,
 		Weight:   weight,
-		Type:     entity.PollTypeQuiz,
+		Type:     entity.PollTypeRegular,
 		IsPublic: true,
 		Options: []*entity.PollOption{
 			{Translation: correctTranslation, IsCorrect: true},
