@@ -35,7 +35,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 	chat := m.GetChatOrCreate(chatID)
 	chat.ConfigureFromText(text)
 	switch chat.GetVocabularyType() {
-	case entity.ChatVocabularyTypeAllVocabularies:
+	case entity.ChatVocabularyTypeAllTerms:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(collection.VocabularyEngToRus)

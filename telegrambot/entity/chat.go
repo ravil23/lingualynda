@@ -9,11 +9,11 @@ type ChatMode string
 type ChatVocabularyType string
 
 const (
-	ChatModeAllTasks = ChatMode("alltasks")
-	ChatModeEngToRus = ChatMode("eng2rus")
-	ChatModeRusToEng = ChatMode("rus2eng")
+	ChatModeAllDirections = ChatMode("alldirections")
+	ChatModeEngToRus      = ChatMode("eng2rus")
+	ChatModeRusToEng      = ChatMode("rus2eng")
 
-	ChatVocabularyTypeAllVocabularies       = ChatVocabularyType("allvocabularies")
+	ChatVocabularyTypeAllTerms              = ChatVocabularyType("allterms")
 	ChatVocabularyTypePauline               = ChatVocabularyType("pauline")
 	ChatVocabularyTypePhrasalVerbs          = ChatVocabularyType("phrasalverbs")
 	ChatVocabularyTypeSuperlativeAdjectives = ChatVocabularyType("superlativeadjectives")
@@ -21,12 +21,12 @@ const (
 	ChatVocabularyTypeIdioms                = ChatVocabularyType("idioms")
 	ChatVocabularyTypeLesson                = ChatVocabularyType("lesson")
 
-	defaultChatMode           = ChatModeAllTasks
-	defaultChatVocabularyType = ChatVocabularyTypeAllVocabularies
+	defaultChatMode           = ChatModeAllDirections
+	defaultChatVocabularyType = ChatVocabularyTypeAllTerms
 )
 
 var AllChatVocabularyTypes = []ChatVocabularyType{
-	ChatVocabularyTypeAllVocabularies,
+	ChatVocabularyTypeAllTerms,
 	ChatVocabularyTypePauline,
 	ChatVocabularyTypePhrasalVerbs,
 	ChatVocabularyTypeSuperlativeAdjectives,
@@ -63,14 +63,14 @@ func (c *Chat) ConfigureFromText(text string) {
 		c.debug = true
 	case "/debug false":
 		c.debug = false
-	case fmt.Sprintf("/%s", ChatModeAllTasks):
-		c.mode = ChatModeAllTasks
+	case fmt.Sprintf("/%s", ChatModeAllDirections):
+		c.mode = ChatModeAllDirections
 	case fmt.Sprintf("/%s", ChatModeEngToRus):
 		c.mode = ChatModeEngToRus
 	case fmt.Sprintf("/%s", ChatModeRusToEng):
 		c.mode = ChatModeRusToEng
-	case fmt.Sprintf("/%s", ChatVocabularyTypeAllVocabularies):
-		c.vocabularyType = ChatVocabularyTypeAllVocabularies
+	case fmt.Sprintf("/%s", ChatVocabularyTypeAllTerms):
+		c.vocabularyType = ChatVocabularyTypeAllTerms
 	case fmt.Sprintf("/%s", ChatVocabularyTypePauline):
 		c.vocabularyType = ChatVocabularyTypePauline
 	case fmt.Sprintf("/%s", ChatVocabularyTypePhrasalVerbs):

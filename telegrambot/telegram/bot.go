@@ -21,7 +21,7 @@ const (
 
 var helpText = strings.Join([]string{
 	"<b>Vocabularies</b>",
-	fmt.Sprintf("/%s - All words", entity.ChatVocabularyTypeAllVocabularies),
+	fmt.Sprintf("/%s - All words", entity.ChatVocabularyTypeAllTerms),
 	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", entity.ChatVocabularyTypePauline),
 	fmt.Sprintf("/%s - Only phrasal verbs", entity.ChatVocabularyTypePhrasalVerbs),
 	fmt.Sprintf("/%s - Only superlative adjectives", entity.ChatVocabularyTypeSuperlativeAdjectives),
@@ -30,7 +30,7 @@ var helpText = strings.Join([]string{
 	fmt.Sprintf("/%s - Only words from lesson", entity.ChatVocabularyTypeLesson),
 	"",
 	"<b>Modes</b>",
-	fmt.Sprintf("/%s - All tasks", entity.ChatModeAllTasks),
+	fmt.Sprintf("/%s - All tasks", entity.ChatModeAllDirections),
 	fmt.Sprintf("/%s - Only Russian to English tasks", entity.ChatModeRusToEng),
 	fmt.Sprintf("/%s - Only English to Russian tasks", entity.ChatModeEngToRus),
 	"",
