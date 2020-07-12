@@ -9,7 +9,7 @@ type PollType string
 type PollOptionID int64
 
 const (
-	PollTypeRegular = "reqular"
+	PollTypeRegular = "regular"
 	PollTypeQuiz    = "quiz"
 )
 
