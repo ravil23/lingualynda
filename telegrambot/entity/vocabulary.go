@@ -70,6 +70,20 @@ func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float
 	return "", 0, false
 }
 
+func (v *Vocabulary) GetCorrectMemorizedTermsCount(userProfile *UserProfile) int {
+	correctMemorizedTermsCount := 0
+	for _, term := range v.allTerms {
+		if userProfile.IsCorrectMemorized(term) {
+			correctMemorizedTermsCount++
+		}
+	}
+	return correctMemorizedTermsCount
+}
+
+func (v *Vocabulary) GetTermsCount() int {
+	return len(v.allTerms)
+}
+
 func (v *Vocabulary) GetTranslations(term Term) []Translation {
 	return v.translations[term]
 }

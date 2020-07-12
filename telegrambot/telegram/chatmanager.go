@@ -32,8 +32,8 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 	}
 	chat := m.chats[chatID]
 	chat.Configure(text)
-	switch chat.GetVocabulary() {
-	case entity.ChatVocabularyAll:
+	switch chat.GetVocabularyType() {
+	case entity.ChatVocabularyTypeAll:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(collection.VocabularyEngToRus)
@@ -42,7 +42,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 		default:
 			chat.SetVocabularies(collection.AllVocabularies...)
 		}
-	case entity.ChatVocabularyPauline:
+	case entity.ChatVocabularyTypePauline:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(pauline.VocabularyEngToRus)
@@ -51,7 +51,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 		default:
 			chat.SetVocabularies(pauline.AllVocabularies...)
 		}
-	case entity.ChatVocabularyPhrasalVerbs:
+	case entity.ChatVocabularyTypePhrasalVerbs:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(phrasalverbs.VocabularyEngToRus)
@@ -60,7 +60,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 		default:
 			chat.SetVocabularies(phrasalverbs.AllVocabularies...)
 		}
-	case entity.ChatVocabularySuperlativeAdjectives:
+	case entity.ChatVocabularyTypeSuperlativeAdjectives:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(superlativeadjectives.VocabularyEngToRus)
@@ -69,7 +69,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 		default:
 			chat.SetVocabularies(superlativeadjectives.AllVocabularies...)
 		}
-	case entity.ChatVocabularyBody:
+	case entity.ChatVocabularyTypeBody:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(body.VocabularyEngToRus)
@@ -78,7 +78,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 		default:
 			chat.SetVocabularies(body.AllVocabularies...)
 		}
-	case entity.ChatVocabularyIdioms:
+	case entity.ChatVocabularyTypeIdioms:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(idioms.VocabularyEngToRus)
@@ -87,7 +87,7 @@ func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string
 		default:
 			chat.SetVocabularies(idioms.AllVocabularies...)
 		}
-	case entity.ChatVocabularyLesson:
+	case entity.ChatVocabularyTypeLesson:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(lesson.VocabularyEngToRus)

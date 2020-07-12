@@ -6,35 +6,38 @@ import (
 
 type ChatID int64
 type ChatMode string
-type ChatVocabulary string
+type ChatVocabularyType string
 
 const (
 	ChatModeRandom   = ChatMode("random")
 	ChatModeEngToRus = ChatMode("eng2rus")
 	ChatModeRusToEng = ChatMode("rus2eng")
 
-	ChatVocabularyAll                   = ChatVocabulary("all")
-	ChatVocabularyPauline               = ChatVocabulary("pauline")
-	ChatVocabularyPhrasalVerbs          = ChatVocabulary("phrasalverbs")
-	ChatVocabularySuperlativeAdjectives = ChatVocabulary("superlativeadjectives")
-	ChatVocabularyBody                  = ChatVocabulary("body")
-	ChatVocabularyIdioms                = ChatVocabulary("idioms")
-	ChatVocabularyLesson                = ChatVocabulary("lesson")
+	ChatVocabularyTypeAll                   = ChatVocabularyType("all")
+	ChatVocabularyTypePauline               = ChatVocabularyType("pauline")
+	ChatVocabularyTypePhrasalVerbs          = ChatVocabularyType("phrasalverbs")
+	ChatVocabularyTypeSuperlativeAdjectives = ChatVocabularyType("superlativeadjectives")
+	ChatVocabularyTypeBody                  = ChatVocabularyType("body")
+	ChatVocabularyTypeIdioms                = ChatVocabularyType("idioms")
+	ChatVocabularyTypeLesson                = ChatVocabularyType("lesson")
+
+	defaultChatMode           = ChatModeRandom
+	defaultChatVocabularyType = ChatVocabularyTypeAll
 )
 
 type Chat struct {
-	id           ChatID
-	mode         ChatMode
-	vocabulary   ChatVocabulary
-	debug        bool
-	vocabularies []*Vocabulary
+	id             ChatID
+	mode           ChatMode
+	vocabularyType ChatVocabularyType
+	debug          bool
+	vocabularies   []*Vocabulary
 }
 
 func NewChat(chatID ChatID) *Chat {
 	return &Chat{
-		id:         chatID,
-		mode:       ChatModeRandom,
-		vocabulary: ChatVocabularyAll,
+		id:             chatID,
+		mode:           defaultChatMode,
+		vocabularyType: defaultChatVocabularyType,
 	}
 }
 
@@ -50,20 +53,20 @@ func (c *Chat) Configure(text string) {
 		c.mode = ChatModeEngToRus
 	case fmt.Sprintf("/%s", ChatModeRusToEng):
 		c.mode = ChatModeRusToEng
-	case fmt.Sprintf("/%s", ChatVocabularyAll):
-		c.vocabulary = ChatVocabularyAll
-	case fmt.Sprintf("/%s", ChatVocabularyPauline):
-		c.vocabulary = ChatVocabularyPauline
-	case fmt.Sprintf("/%s", ChatVocabularyPhrasalVerbs):
-		c.vocabulary = ChatVocabularyPhrasalVerbs
-	case fmt.Sprintf("/%s", ChatVocabularySuperlativeAdjectives):
-		c.vocabulary = ChatVocabularySuperlativeAdjectives
-	case fmt.Sprintf("/%s", ChatVocabularyBody):
-		c.vocabulary = ChatVocabularyBody
-	case fmt.Sprintf("/%s", ChatVocabularyIdioms):
-		c.vocabulary = ChatVocabularyIdioms
-	case fmt.Sprintf("/%s", ChatVocabularyLesson):
-		c.vocabulary = ChatVocabularyLesson
+	case fmt.Sprintf("/%s", ChatVocabularyTypeAll):
+		c.vocabularyType = ChatVocabularyTypeAll
+	case fmt.Sprintf("/%s", ChatVocabularyTypePauline):
+		c.vocabularyType = ChatVocabularyTypePauline
+	case fmt.Sprintf("/%s", ChatVocabularyTypePhrasalVerbs):
+		c.vocabularyType = ChatVocabularyTypePhrasalVerbs
+	case fmt.Sprintf("/%s", ChatVocabularyTypeSuperlativeAdjectives):
+		c.vocabularyType = ChatVocabularyTypeSuperlativeAdjectives
+	case fmt.Sprintf("/%s", ChatVocabularyTypeBody):
+		c.vocabularyType = ChatVocabularyTypeBody
+	case fmt.Sprintf("/%s", ChatVocabularyTypeIdioms):
+		c.vocabularyType = ChatVocabularyTypeIdioms
+	case fmt.Sprintf("/%s", ChatVocabularyTypeLesson):
+		c.vocabularyType = ChatVocabularyTypeLesson
 	}
 }
 
@@ -72,11 +75,19 @@ func (c *Chat) GetID() ChatID {
 }
 
 func (c *Chat) GetMode() ChatMode {
-	return c.mode
+	if c == nil {
+		return defaultChatMode
+	} else {
+		return c.mode
+	}
 }
 
-func (c *Chat) GetVocabulary() ChatVocabulary {
-	return c.vocabulary
+func (c *Chat) GetVocabularyType() ChatVocabularyType {
+	if c == nil {
+		return defaultChatVocabularyType
+	} else {
+		return c.vocabularyType
+	}
 }
 
 func (c *Chat) IsDebuggingEnabled() bool {

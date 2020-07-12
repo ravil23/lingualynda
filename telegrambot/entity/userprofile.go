@@ -39,3 +39,9 @@ func (p *UserProfile) GetMemorizationWeight(term Term) float64 {
 		return fineCoefficientForCorrect * 1 / (1 + diff)
 	}
 }
+
+func (p *UserProfile) IsCorrectMemorized(term Term) bool {
+	correctTranslations := p.correctlyTranslatedTerms[term]
+	mistakeTranslations := p.mistakenlyTranslatedTerms[term]
+	return correctTranslations > mistakeTranslations
+}

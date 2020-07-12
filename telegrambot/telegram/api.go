@@ -30,6 +30,7 @@ type API interface {
 	SendAlert(text string)
 	SendMessage(chatID entity.ChatID, text string)
 	SendHTMLMessage(chatID entity.ChatID, text string)
+	SendProgress(user *entity.User)
 	UpdateInternalState(message *entity.Message)
 }
 
@@ -146,14 +147,14 @@ func (api *api) SendNextPoll(user *entity.User) error {
 	poll, found := api.getNextPoll(user)
 	if !found {
 		var mode entity.ChatMode
-		var vocabulary entity.ChatVocabulary
+		var vocabularyType entity.ChatVocabularyType
 		if chat, found := api.chatManager.GetChat(user.ChatID); found {
 			mode = chat.GetMode()
-			vocabulary = chat.GetVocabulary()
+			vocabularyType = chat.GetVocabularyType()
 		}
 		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
 			"<b>Congratulations!</b>\nYou have memorized all terms from /%s vocabulary in /%s mode. Please change vocabulary or mode.\n\n%s",
-			vocabulary,
+			vocabularyType,
 			mode,
 			helpText,
 		))
@@ -176,12 +177,7 @@ func (api *api) SendNextPoll(user *entity.User) error {
 }
 
 func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
-	var listOfVocabularies []*entity.Vocabulary
-	if chat, found := api.chatManager.GetChat(user.ChatID); found {
-		listOfVocabularies = chat.GetVocabularies()
-	} else {
-		listOfVocabularies = []*entity.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}
-	}
+	listOfVocabularies, _ := api.getListOfChatsVocabularies(user.ChatID)
 	vocabularyIndex := rand.Intn(len(listOfVocabularies))
 	var selectedVocabulary *entity.Vocabulary
 	var term entity.Term
@@ -229,6 +225,36 @@ func (api *api) getNextPoll(user *entity.User) (*entity.Poll, bool) {
 	return poll, true
 }
 
+func (api *api) getListOfChatsVocabularies(chatID entity.ChatID) ([]*entity.Vocabulary, *entity.Chat) {
+	if chat, found := api.chatManager.GetChat(chatID); found {
+		return chat.GetVocabularies(), chat
+	} else {
+		return []*entity.Vocabulary{collection.VocabularyEngToRus, collection.VocabularyRusToEng}, nil
+	}
+}
+
+func (api *api) SendProgress(user *entity.User) {
+	listOfVocabularies, chat := api.getListOfChatsVocabularies(user.ChatID)
+	userProfile, found := api.userProfileManager.GetUserProfile(user.ID)
+	totalTermsCount := 0
+	correctMemorizedTermsCount := 0
+	for _, vocabulary := range listOfVocabularies {
+		totalTermsCount += vocabulary.GetTermsCount()
+		if found {
+			correctMemorizedTermsCount += vocabulary.GetCorrectMemorizedTermsCount(userProfile)
+		}
+	}
+	text := fmt.Sprintf(
+		"Progress of /%s vocabulary in /%s mode is %.1f%% (%d from %d)",
+		chat.GetVocabularyType(),
+		chat.GetMode(),
+		100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
+		correctMemorizedTermsCount,
+		totalTermsCount,
+	)
+	api.SendMessage(user.ChatID, text)
+}
+
 func (api *api) SendAlert(text string) {
 	api.SendMessage(alertsChatID, fmt.Sprintf("[%s] %s", api.hostName, text))
 }
@@ -259,7 +285,7 @@ func (api *api) sendDebugMessage(chat *entity.Chat, user *entity.User, poll *ent
 	debugMessage := fmt.Sprintf("\nUser: %s", user.GetFormattedName())
 	debugMessage += fmt.Sprintf("\nChat ID: %d", chat.GetID())
 	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
-	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabulary())
+	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabularyType())
 	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetVocabularies()))
 	debugMessage += fmt.Sprintf("\nPoll: %+v with weight %.3f", poll.Term, poll.Weight)
 	api.SendAlert(debugMessage)

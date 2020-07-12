@@ -22,17 +22,20 @@ const (
 var helpText = strings.Join([]string{
 	"<b>Vocabularies</b>",
 	"/all - All words",
-	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", entity.ChatVocabularyPauline),
-	fmt.Sprintf("/%s - Only phrasal verbs", entity.ChatVocabularyPhrasalVerbs),
-	fmt.Sprintf("/%s - Only superlative adjectives", entity.ChatVocabularySuperlativeAdjectives),
-	fmt.Sprintf("/%s - Only words about body", entity.ChatVocabularyBody),
-	fmt.Sprintf("/%s - Only idioms", entity.ChatVocabularyIdioms),
-	fmt.Sprintf("/%s - Only words from lesson", entity.ChatVocabularyLesson),
+	fmt.Sprintf("/%s - Only words from <i>Vocabulary for IELTS Advanced - Pauline Cullen</i>", entity.ChatVocabularyTypePauline),
+	fmt.Sprintf("/%s - Only phrasal verbs", entity.ChatVocabularyTypePhrasalVerbs),
+	fmt.Sprintf("/%s - Only superlative adjectives", entity.ChatVocabularyTypeSuperlativeAdjectives),
+	fmt.Sprintf("/%s - Only words about body", entity.ChatVocabularyTypeBody),
+	fmt.Sprintf("/%s - Only idioms", entity.ChatVocabularyTypeIdioms),
+	fmt.Sprintf("/%s - Only words from lesson", entity.ChatVocabularyTypeLesson),
 	"",
 	"<b>Modes</b>",
 	fmt.Sprintf("/%s - Only Russian to English tasks", entity.ChatModeRusToEng),
 	fmt.Sprintf("/%s - Only English to Russian tasks", entity.ChatModeEngToRus),
 	fmt.Sprintf("/%s - Select random task for both side", entity.ChatModeRandom),
+	"",
+	"<b>Status</b>",
+	"/progress - get current progress in selected vocabulary and mode",
 	"",
 	"<b>Tap to /next for getting new poll</b>",
 }, "\n")
@@ -88,6 +91,9 @@ func (b *Bot) Run() {
 		switch message.Text {
 		case "/help", "/start":
 			b.api.SendHTMLMessage(message.ChatID, helpText)
+			return nil
+		case "/progress":
+			b.api.SendProgress(message.User)
 			return nil
 		}
 		return b.api.SendNextPoll(message.User)
