@@ -239,6 +239,7 @@ func (api *api) getProgressByUser(user *entity.User) string {
 		}
 		otherChat := entity.NewChat(0)
 		api.chatManager.SetupChatConfiguration(otherChat, entity.ChatModeAllDirections, vocabularyType)
+		api.sendDebugMessage(otherChat, user, nil)
 		otherTexts = append(otherTexts, api.getProgressByChat(otherChat, userProfile))
 	}
 	return strings.Join([]string{
@@ -300,7 +301,9 @@ func (api *api) sendDebugMessage(chat *entity.Chat, user *entity.User, poll *ent
 	debugMessage += fmt.Sprintf("\nSelected mode: %s", chat.GetMode())
 	debugMessage += fmt.Sprintf("\nSelected vocabulary type: %s", chat.GetVocabularyType())
 	debugMessage += fmt.Sprintf("\nSelected vocabularies count: %d", len(chat.GetListOfVocabularies()))
-	debugMessage += fmt.Sprintf("\nPoll: %+v with weight %.3f", poll.Term, poll.Weight)
+	if poll != nil {
+		debugMessage += fmt.Sprintf("\nPoll: %+v with weight %.3f", poll.Term, poll.Weight)
+	}
 	api.SendAlert(debugMessage)
 }
 
