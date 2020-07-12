@@ -149,7 +149,8 @@ func (api *api) SendNextPoll(user *entity.User) error {
 		chat := api.chatManager.GetChatOrCreate(user.ChatID)
 		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
 			strings.Join([]string{
-				"<b>Congratulations! You have memorized all terms from /%s vocabulary in /%s mode.</b>",
+				"<b>Congratulations!</b>",
+				"You have memorized all terms from /%s vocabulary in /%s mode.",
 				api.getProgressByUser(user),
 				"",
 				"Please change vocabulary or mode. Type /help to see instructions.",
@@ -231,7 +232,7 @@ func (api *api) SendProgress(user *entity.User) {
 func (api *api) getProgressByUser(user *entity.User) string {
 	chat := api.chatManager.GetChatOrCreate(user.ChatID)
 	userProfile, _ := api.userProfileManager.GetUserProfile(user.ID)
-	currentText := api.getProgressByChat(chat, userProfile)
+	currentText := api.getProgressByChat(chat, userProfile, false)
 	otherTexts := make([]string, 0, len(entity.AllChatVocabularyTypes))
 	for _, vocabularyType := range entity.AllChatVocabularyTypes {
 		if vocabularyType == chat.GetVocabularyType() {
@@ -240,7 +241,7 @@ func (api *api) getProgressByUser(user *entity.User) string {
 		otherChat := entity.NewChat(0)
 		api.chatManager.SetupChatConfiguration(otherChat, entity.ChatModeAllDirections, vocabularyType)
 		api.sendDebugMessage(otherChat, user, nil)
-		otherTexts = append(otherTexts, api.getProgressByChat(otherChat, userProfile))
+		otherTexts = append(otherTexts, api.getProgressByChat(otherChat, userProfile, true))
 	}
 	return strings.Join([]string{
 		currentText,
@@ -250,7 +251,7 @@ func (api *api) getProgressByUser(user *entity.User) string {
 	}, "\n")
 }
 
-func (api *api) getProgressByChat(chat *entity.Chat, userProfile *entity.UserProfile) string {
+func (api *api) getProgressByChat(chat *entity.Chat, userProfile *entity.UserProfile, short bool) string {
 	totalTermsCount := 0
 	correctMemorizedTermsCount := 0
 	for _, vocabulary := range chat.GetListOfVocabularies() {
@@ -259,14 +260,24 @@ func (api *api) getProgressByChat(chat *entity.Chat, userProfile *entity.UserPro
 			correctMemorizedTermsCount += vocabulary.GetCorrectMemorizedTermsCount(userProfile)
 		}
 	}
-	return fmt.Sprintf(
-		"Progress of /%s vocabulary in /%s mode is %.1f%% (%d terms from %d memorized)",
-		chat.GetVocabularyType(),
-		chat.GetMode(),
-		100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
-		correctMemorizedTermsCount,
-		totalTermsCount,
-	)
+	if short {
+		return fmt.Sprintf(
+			"/%s: %.1f%% (%d terms from %d memorized)",
+			chat.GetVocabularyType(),
+			100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
+			correctMemorizedTermsCount,
+			totalTermsCount,
+		)
+	} else {
+		return fmt.Sprintf(
+			"Progress of /%s vocabulary in /%s mode is %.1f%% (%d terms from %d memorized)",
+			chat.GetVocabularyType(),
+			chat.GetMode(),
+			100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
+			correctMemorizedTermsCount,
+			totalTermsCount,
+		)
+	}
 }
 
 func (api *api) SendAlert(text string) {
