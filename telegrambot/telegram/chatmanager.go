@@ -21,19 +21,21 @@ func NewChatManager() *ChatManager {
 	}
 }
 
-func (m *ChatManager) GetChat(chatID entity.ChatID) (*entity.Chat, bool) {
-	chat, found := m.chats[chatID]
-	return chat, found
+func (m *ChatManager) GetChatOrCreate(chatID entity.ChatID) *entity.Chat {
+	if chat, found := m.chats[chatID]; found {
+		return chat
+	} else {
+		chat := entity.NewChat(chatID)
+		m.chats[chatID] = chat
+		return chat
+	}
 }
 
 func (m *ChatManager) UpdateChatConfigurations(chatID entity.ChatID, text string) *entity.Chat {
-	if _, found := m.chats[chatID]; !found {
-		m.chats[chatID] = entity.NewChat(chatID)
-	}
-	chat := m.chats[chatID]
-	chat.Configure(text)
+	chat := m.GetChatOrCreate(chatID)
+	chat.ConfigureFromText(text)
 	switch chat.GetVocabularyType() {
-	case entity.ChatVocabularyTypeAll:
+	case entity.ChatVocabularyTypeAllVocabularies:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
 			chat.SetVocabularies(collection.VocabularyEngToRus)

@@ -9,11 +9,11 @@ type ChatMode string
 type ChatVocabularyType string
 
 const (
-	ChatModeAll      = ChatMode("alltasks")
+	ChatModeAllTasks = ChatMode("alltasks")
 	ChatModeEngToRus = ChatMode("eng2rus")
 	ChatModeRusToEng = ChatMode("rus2eng")
 
-	ChatVocabularyTypeAll                   = ChatVocabularyType("allvocabularies")
+	ChatVocabularyTypeAllVocabularies       = ChatVocabularyType("allvocabularies")
 	ChatVocabularyTypePauline               = ChatVocabularyType("pauline")
 	ChatVocabularyTypePhrasalVerbs          = ChatVocabularyType("phrasalverbs")
 	ChatVocabularyTypeSuperlativeAdjectives = ChatVocabularyType("superlativeadjectives")
@@ -21,9 +21,19 @@ const (
 	ChatVocabularyTypeIdioms                = ChatVocabularyType("idioms")
 	ChatVocabularyTypeLesson                = ChatVocabularyType("lesson")
 
-	defaultChatMode           = ChatModeAll
-	defaultChatVocabularyType = ChatVocabularyTypeAll
+	defaultChatMode           = ChatModeAllTasks
+	defaultChatVocabularyType = ChatVocabularyTypeAllVocabularies
 )
+
+var AllChatVocabularyTypes = []ChatVocabularyType{
+	ChatVocabularyTypeAllVocabularies,
+	ChatVocabularyTypePauline,
+	ChatVocabularyTypePhrasalVerbs,
+	ChatVocabularyTypeSuperlativeAdjectives,
+	ChatVocabularyTypeBody,
+	ChatVocabularyTypeIdioms,
+	ChatVocabularyTypeLesson,
+}
 
 type Chat struct {
 	id             ChatID
@@ -41,20 +51,26 @@ func NewChat(chatID ChatID) *Chat {
 	}
 }
 
-func (c *Chat) Configure(text string) {
+func (c *Chat) Configure(debug bool, mode ChatMode, vocabularyType ChatVocabularyType) {
+	c.debug = debug
+	c.mode = mode
+	c.vocabularyType = vocabularyType
+}
+
+func (c *Chat) ConfigureFromText(text string) {
 	switch text {
 	case "/debug true":
 		c.debug = true
 	case "/debug false":
 		c.debug = false
-	case fmt.Sprintf("/%s", ChatModeAll):
-		c.mode = ChatModeAll
+	case fmt.Sprintf("/%s", ChatModeAllTasks):
+		c.mode = ChatModeAllTasks
 	case fmt.Sprintf("/%s", ChatModeEngToRus):
 		c.mode = ChatModeEngToRus
 	case fmt.Sprintf("/%s", ChatModeRusToEng):
 		c.mode = ChatModeRusToEng
-	case fmt.Sprintf("/%s", ChatVocabularyTypeAll):
-		c.vocabularyType = ChatVocabularyTypeAll
+	case fmt.Sprintf("/%s", ChatVocabularyTypeAllVocabularies):
+		c.vocabularyType = ChatVocabularyTypeAllVocabularies
 	case fmt.Sprintf("/%s", ChatVocabularyTypePauline):
 		c.vocabularyType = ChatVocabularyTypePauline
 	case fmt.Sprintf("/%s", ChatVocabularyTypePhrasalVerbs):
@@ -94,7 +110,7 @@ func (c *Chat) IsDebuggingEnabled() bool {
 	return c.debug
 }
 
-func (c *Chat) GetVocabularies() []*Vocabulary {
+func (c *Chat) GetListOfVocabularies() []*Vocabulary {
 	return c.vocabularies
 }
 
