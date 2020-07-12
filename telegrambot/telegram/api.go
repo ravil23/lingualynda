@@ -147,19 +147,19 @@ func (api *api) SendNextPoll(user *entity.User) error {
 	poll, found := api.getNextPoll(user)
 	if !found {
 		chat := api.chatManager.GetChatOrCreate(user.ChatID)
-		api.SendHTMLMessage(user.ChatID, fmt.Sprintf(
-			strings.Join([]string{
-				"<b>Congratulations!</b>",
-				fmt.Sprintf(
-					"You have memorized all terms from /%s vocabulary in /%s mode.",
-					chat.GetVocabularyType(),
-					chat.GetMode(),
-				),
-				api.getProgressByUser(user),
-				"",
-				"Please change vocabulary or mode. Type /help to see instructions.",
-			}, "\n"),
-		))
+		headerText := fmt.Sprintf(
+			"<b>Congratulations!</b>\nYou have memorized all terms from /%s vocabulary in /%s mode.",
+			chat.GetVocabularyType(),
+			chat.GetMode(),
+		)
+		progressText := api.getProgressByUser(user)
+		text := strings.Join([]string{
+			headerText,
+			progressText,
+			"",
+			"Please change vocabulary or mode. Type /help to see instructions.",
+		}, "\n")
+		api.SendHTMLMessage(user.ChatID, text)
 		return nil
 	}
 	tgPoll := poll.ToChatable(user.ChatID)
