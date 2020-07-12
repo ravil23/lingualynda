@@ -9,7 +9,7 @@ type PollType string
 type PollOptionID int64
 
 const (
-	PollTypeRegular = "regular"
+	PollTypeRegular = "regular" // can not check answer on client side
 	PollTypeQuiz    = "quiz"
 )
 
