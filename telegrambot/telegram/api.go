@@ -263,18 +263,18 @@ func (api *api) getProgressByChat(chat *entity.Chat, userProfile *entity.UserPro
 	}
 	if short {
 		return fmt.Sprintf(
-			"/%s: %.1f%% (%d terms from %d memorized)",
+			"/%s: %s (%d terms from %d memorized)",
 			chat.GetVocabularyType(),
-			100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
+			fmt.Sprintf("%.1f%%", 100*float64(correctMemorizedTermsCount)/float64(totalTermsCount)),
 			correctMemorizedTermsCount,
 			totalTermsCount,
 		)
 	} else {
 		return fmt.Sprintf(
-			"Progress of /%s vocabulary in /%s mode is %.1f%% (%d terms from %d memorized)",
+			"Progress of /%s vocabulary in /%s mode is %s (%d terms from %d memorized)",
 			chat.GetVocabularyType(),
 			chat.GetMode(),
-			100*float64(correctMemorizedTermsCount)/float64(totalTermsCount),
+			fmt.Sprintf("%.1f%%", 100*float64(correctMemorizedTermsCount)/float64(totalTermsCount)),
 			correctMemorizedTermsCount,
 			totalTermsCount,
 		)
