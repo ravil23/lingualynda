@@ -78,7 +78,7 @@ var VocabularyNouns = entity.NewVocabulary(
 		"nausea":        {"тошнота"},
 		"outcast":       {"изгой", "изгнанник"},
 		"overcrowding":  {"перенаселенность"},
-		"pathway":       {"путь"},
+		"pathway":       {"путь", "специализация"},
 		"pleasure":      {"удовольствие", "радость", "наслаждение", "удовлетворение"},
 		"pollution":     {"загрязнение"},
 		"proving":       {"доказательство"},
