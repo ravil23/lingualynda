@@ -1,6 +1,14 @@
 #!/bin/sh
 
-psql -v USER_ID="$1" -U lingualynda -d lingualynda <<-EOSQL
+USER_ID="$1"
+
+if [ -z "$USER_ID" ]
+  then
+    echo "No USER_ID argument"
+    exit 1
+fi
+
+psql -v USER_ID="$USER_ID" -U lingualynda <<-EOSQL
     SELECT
       user_id,
       date(timestamp) as date,

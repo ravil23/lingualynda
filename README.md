@@ -19,3 +19,17 @@ Run development environment on localhost:
 docker-compose up --build postgres pgadmin
 ```
 It is useful for debugging and writing integration tests.
+
+## Show reports
+Get list of available reports:
+```
+docker exec postgres_container ls /reports
+```
+Show list of users:
+```
+docker exec postgres_container /reports/users_list.sh
+```
+Show statistic of user:
+```
+docker exec postgres_container /reports/user_stat.sh <USER_ID>
+```
