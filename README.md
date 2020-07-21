@@ -29,7 +29,3 @@ Show list of users:
 ```
 docker exec postgres_container /reports/users_list.sh
 ```
-Show statistic of user:
-```
-docker exec postgres_container /reports/user_stat.sh <USER_ID>
-```
