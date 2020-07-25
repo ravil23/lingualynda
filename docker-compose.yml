@@ -4,7 +4,7 @@ services:
 
   postgres:
     build: ./postgres
-    container_name: postgres_container
+    container_name: lingualynda_postgres_container
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-lingualynda}"
     volumes:
@@ -17,7 +17,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:4.21
-    container_name: pgadmin_container
+    container_name: lingualynda_pgadmin_container
     environment:
       PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}"
       PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD:-admin}"
@@ -31,13 +31,13 @@ services:
 
   telegrambot:
     build: ./telegrambot
-    container_name: telegrambot_container
+    container_name: lingualynda_telegrambot_container
     environment:
       POSTGRES_ADDRESS: "postgres:5432"
       POSTGRES_DATABASE: "lingualynda"
       POSTGRES_USER: "lingualynda"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-lingualynda}"
-      BOT_TOKEN: "${BOT_TOKEN}"
+      BOT_TOKEN: "${LINGUALYNDA_BOT_TOKEN}"
     depends_on:
       - postgres
     networks:
