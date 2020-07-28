@@ -18,9 +18,9 @@ const (
 	ChatVocabularyTypePhrasalVerbs          = ChatVocabularyType("phrasalverbs")
 	ChatVocabularyTypeSuperlativeAdjectives = ChatVocabularyType("superlativeadjectives")
 	ChatVocabularyTypeBody                  = ChatVocabularyType("body")
-	ChatVocabularyTypeGRE                   = ChatVocabularyType("gre")
 	ChatVocabularyTypeIdioms                = ChatVocabularyType("idioms")
 	ChatVocabularyTypeLesson                = ChatVocabularyType("lesson")
+	ChatVocabularyTypeGRE                   = ChatVocabularyType("gre")
 
 	defaultChatMode           = ChatModeAllDirections
 	defaultChatVocabularyType = ChatVocabularyTypeAllTerms
@@ -34,6 +34,7 @@ var AllChatVocabularyTypes = []ChatVocabularyType{
 	ChatVocabularyTypeBody,
 	ChatVocabularyTypeIdioms,
 	ChatVocabularyTypeLesson,
+	ChatVocabularyTypeGRE,
 }
 
 type Chat struct {
