@@ -85,6 +85,8 @@ func (c *Chat) ConfigureFromText(text string) {
 		c.vocabularyType = ChatVocabularyTypeIdioms
 	case fmt.Sprintf("/%s", ChatVocabularyTypeLesson):
 		c.vocabularyType = ChatVocabularyTypeLesson
+	case fmt.Sprintf("/%s", ChatVocabularyTypeGRE):
+		c.vocabularyType = ChatVocabularyTypeGRE
 	}
 }
 

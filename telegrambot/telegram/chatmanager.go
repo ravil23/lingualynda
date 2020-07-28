@@ -87,15 +87,6 @@ func (m *ChatManager) SetupChatConfiguration(chat *entity.Chat, mode entity.Chat
 		default:
 			chat.SetVocabularies(body.AllVocabularies...)
 		}
-	case entity.ChatVocabularyTypeGRE:
-		switch chat.GetMode() {
-		case entity.ChatModeEngToRus:
-			chat.SetVocabularies(gre.VocabularyEngToRus)
-		case entity.ChatModeRusToEng:
-			chat.SetVocabularies(gre.VocabularyRusToEng)
-		default:
-			chat.SetVocabularies(gre.AllVocabularies...)
-		}
 	case entity.ChatVocabularyTypeIdioms:
 		switch chat.GetMode() {
 		case entity.ChatModeEngToRus:
@@ -113,6 +104,15 @@ func (m *ChatManager) SetupChatConfiguration(chat *entity.Chat, mode entity.Chat
 			chat.SetVocabularies(lesson.VocabularyRusToEng)
 		default:
 			chat.SetVocabularies(lesson.AllVocabularies...)
+		}
+	case entity.ChatVocabularyTypeGRE:
+		switch chat.GetMode() {
+		case entity.ChatModeEngToRus:
+			chat.SetVocabularies(gre.VocabularyEngToRus)
+		case entity.ChatModeRusToEng:
+			chat.SetVocabularies(gre.VocabularyRusToEng)
+		default:
+			chat.SetVocabularies(gre.AllVocabularies...)
 		}
 	default:
 		chat.SetVocabularies(collection.AllVocabularies...)
