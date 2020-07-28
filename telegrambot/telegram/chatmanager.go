@@ -3,6 +3,7 @@ package telegram
 import (
 	"github.com/ravil23/lingualynda/telegrambot/collection"
 	"github.com/ravil23/lingualynda/telegrambot/collection/body"
+	"github.com/ravil23/lingualynda/telegrambot/collection/gre"
 	"github.com/ravil23/lingualynda/telegrambot/collection/idioms"
 	"github.com/ravil23/lingualynda/telegrambot/collection/lesson"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
@@ -85,6 +86,15 @@ func (m *ChatManager) SetupChatConfiguration(chat *entity.Chat, mode entity.Chat
 			chat.SetVocabularies(body.VocabularyRusToEng)
 		default:
 			chat.SetVocabularies(body.AllVocabularies...)
+		}
+	case entity.ChatVocabularyTypeGRE:
+		switch chat.GetMode() {
+		case entity.ChatModeEngToRus:
+			chat.SetVocabularies(gre.VocabularyEngToRus)
+		case entity.ChatModeRusToEng:
+			chat.SetVocabularies(gre.VocabularyRusToEng)
+		default:
+			chat.SetVocabularies(gre.AllVocabularies...)
 		}
 	case entity.ChatVocabularyTypeIdioms:
 		switch chat.GetMode() {
