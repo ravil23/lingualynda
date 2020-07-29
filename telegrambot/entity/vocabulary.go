@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	maxWipTermsCount = 5
 	maxNewTermsCount = 5
 )
 
@@ -74,12 +75,20 @@ func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float
 	weights := make(map[Term]float64, len(v.allTerms))
 	weightsSum := 0.
 	weightsMax := 0.
-	learningTermsCount := 0
+	wipTermsCount := 0
+	newTermsCount := 0
 	for _, term := range v.allTerms {
 		weight, found := userProfile.GetMemorizationWeight(term)
-		if !found {
-			learningTermsCount++
-			if learningTermsCount > maxNewTermsCount {
+		if found {
+			if weight >= 1 {
+				wipTermsCount++
+				if wipTermsCount > maxWipTermsCount {
+					continue
+				}
+			}
+		} else {
+			newTermsCount++
+			if newTermsCount > maxNewTermsCount {
 				continue
 			}
 		}
