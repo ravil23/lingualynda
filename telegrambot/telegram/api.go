@@ -284,7 +284,7 @@ func (api *api) getProgressByChat(chat *entity.Chat, userProfile *entity.UserPro
 
 func (api *api) SendLearningReports(user *entity.User) {
 	for _, report := range api.getLearningReports(user) {
-		api.SendMessage(user.ChatID, report)
+		api.SendHTMLMessage(user.ChatID, report)
 	}
 }
 
@@ -297,10 +297,10 @@ func (api *api) getLearningReports(user *entity.User) []string {
 		wipVocabulary := vocabulary.GetWipVocabularyByUserProfile(userProfile)
 		newVocabulary := vocabulary.GetNewVocabularyByUserProfile(userProfile)
 		report := strings.Join([]string{
-			"Work in progress",
+			"<b>Work in progress</b>",
 			wipVocabulary.String(),
 			"",
-			"New terms",
+			"<b>New terms</b>",
 			newVocabulary.String(),
 		}, "\n")
 		vocabularyReports = append(vocabularyReports, report)
