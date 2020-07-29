@@ -9,7 +9,7 @@ import (
 
 const (
 	maxWipTermsCount = 5
-	maxNewTermsCount = 5
+	maxNewTermsCount = 1
 )
 
 type Term string
