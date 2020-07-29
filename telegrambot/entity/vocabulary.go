@@ -126,7 +126,7 @@ func (v *Vocabulary) GetNewVocabularyByUserProfile(userProfile *UserProfile) *Vo
 		_, found := userProfile.GetMemorizationWeight(term)
 		if !found {
 			newVocabulary.AddEntity(term, translations)
-			if newVocabulary.GetTermsCount() > maxNewTermsCount {
+			if newVocabulary.GetTermsCount() == maxNewTermsCount {
 				break
 			}
 		}
