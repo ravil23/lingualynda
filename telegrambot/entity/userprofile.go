@@ -27,20 +27,23 @@ func (p *UserProfile) AddMistakenlyTranslatedTerm(term Term) {
 	p.mistakenlyTranslatedTerms[term]++
 }
 
-func (p *UserProfile) GetMemorizationWeight(term Term) float64 {
-	correctTranslations := p.correctlyTranslatedTerms[term]
-	mistakeTranslations := p.mistakenlyTranslatedTerms[term]
+func (p *UserProfile) GetMemorizationWeight(term Term) (float64, bool) {
+	correctTranslations, foundInCorrect := p.correctlyTranslatedTerms[term]
+	mistakeTranslations, foundInMistake := p.mistakenlyTranslatedTerms[term]
+	if !foundInCorrect && !foundInMistake {
+		return 1, false
+	}
 	diff := float64(correctTranslations - mistakeTranslations)
 	if diff == 0 {
-		return 1
+		return 1, true
 	} else if diff < 0 {
-		return fineCoefficientForMistake * -diff
+		return fineCoefficientForMistake * -diff, true
 	} else {
-		return fineCoefficientForCorrect * 1 / (1 + diff)
+		return fineCoefficientForCorrect * 1 / (1 + diff), true
 	}
 }
 
-func (p *UserProfile) IsCorrectMemorized(term Term) bool {
+func (p *UserProfile) IsCorrectlyMemorized(term Term) bool {
 	correctTranslations := p.correctlyTranslatedTerms[term]
 	mistakeTranslations := p.mistakenlyTranslatedTerms[term]
 	return correctTranslations > mistakeTranslations

@@ -37,6 +37,7 @@ var helpText = strings.Join([]string{
 	"",
 	"<b>Information</b>",
 	"/progress - Show current progress in selected vocabulary and mode",
+	"/learning - Show current learning terms",
 	"/help - Show this description of usage",
 	"",
 	"<b>Tap to /next for getting new poll</b>",
@@ -96,6 +97,9 @@ func (b *Bot) Run() {
 			return nil
 		case "/progress":
 			b.api.SendProgress(message.User)
+			return nil
+		case "/learning":
+			b.api.SendLearningReports(message.User)
 			return nil
 		}
 		return b.api.SendNextPoll(message.User)

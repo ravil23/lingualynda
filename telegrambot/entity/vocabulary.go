@@ -3,6 +3,12 @@ package entity
 import (
 	"math"
 	"math/rand"
+	"sort"
+	"strings"
+)
+
+const (
+	maxNewTermsCount = 5
 )
 
 type Term string
@@ -43,6 +49,23 @@ func NewVocabulary(wordList map[Term][]Translation) *Vocabulary {
 	return v
 }
 
+func (v *Vocabulary) String() string {
+	if v == nil {
+		return "<nil>"
+	}
+	translationLines := make([]string, 0, v.GetTermsCount())
+	for _, term := range v.allTerms {
+		translations := v.GetTranslations(term)
+		translationWords := make([]string, 0, len(translations))
+		for _, translation := range translations {
+			translationWords = append(translationWords, translation.String())
+		}
+		line := term.String() + " - " + strings.Join(translationWords, ", ")
+		translationLines = append(translationLines, line)
+	}
+	return strings.Join(translationLines, "\n")
+}
+
 func (v *Vocabulary) GetRandomTerm() Term {
 	return v.allTerms[rand.Intn(len(v.allTerms))]
 }
@@ -51,8 +74,15 @@ func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float
 	weights := make(map[Term]float64, len(v.allTerms))
 	weightsSum := 0.
 	weightsMax := 0.
+	learningTermsCount := 0
 	for _, term := range v.allTerms {
-		weight := userProfile.GetMemorizationWeight(term)
+		weight, found := userProfile.GetMemorizationWeight(term)
+		if !found {
+			learningTermsCount++
+			if learningTermsCount > maxNewTermsCount {
+				continue
+			}
+		}
 		weights[term] = weight
 		weightsSum += weight
 		weightsMax = math.Max(weightsMax, weight)
@@ -70,10 +100,35 @@ func (v *Vocabulary) GetTermByUserProfile(userProfile *UserProfile) (Term, float
 	return "", 0, false
 }
 
+func (v *Vocabulary) GetWipVocabularyByUserProfile(userProfile *UserProfile) *Vocabulary {
+	wipVocabulary := NewEmptyVocabulary()
+	for term, translations := range v.translations {
+		weight, found := userProfile.GetMemorizationWeight(term)
+		if found && weight >= 1 {
+			wipVocabulary.AddEntity(term, translations)
+		}
+	}
+	return wipVocabulary
+}
+
+func (v *Vocabulary) GetNewVocabularyByUserProfile(userProfile *UserProfile) *Vocabulary {
+	newVocabulary := NewEmptyVocabulary()
+	for term, translations := range v.translations {
+		_, found := userProfile.GetMemorizationWeight(term)
+		if !found {
+			newVocabulary.AddEntity(term, translations)
+			if newVocabulary.GetTermsCount() > maxNewTermsCount {
+				break
+			}
+		}
+	}
+	return newVocabulary
+}
+
 func (v *Vocabulary) GetCorrectMemorizedTermsCount(userProfile *UserProfile) int {
 	correctMemorizedTermsCount := 0
 	for _, term := range v.allTerms {
-		if userProfile.IsCorrectMemorized(term) {
+		if userProfile.IsCorrectlyMemorized(term) {
 			correctMemorizedTermsCount++
 		}
 	}
@@ -96,9 +151,44 @@ func (v *Vocabulary) Update(other *Vocabulary) *Vocabulary {
 	for term, translations := range other.translations {
 		v.translations[term] = translations
 	}
-	v.allTerms = append(v.allTerms, other.allTerms...)
-	v.allTranslations = append(v.allTranslations, other.allTranslations...)
+	v.refreshAllTerms()
+	v.refreshAllTranslations()
 	return v
+}
+
+func (v *Vocabulary) AddEntity(term Term, translations []Translation) *Vocabulary {
+	v.translations[term] = translations
+	v.refreshAllTerms()
+	v.refreshAllTranslations()
+	return v
+}
+
+func (v *Vocabulary) refreshAllTerms() {
+	allTerms := make([]Term, 0, len(v.translations))
+	for term := range v.translations {
+		allTerms = append(allTerms, term)
+	}
+	sort.Slice(allTerms, func(i, j int) bool {
+		return allTerms[i] < allTerms[j]
+	})
+	v.allTerms = allTerms
+}
+
+func (v *Vocabulary) refreshAllTranslations() {
+	setOfTranslations := make(map[Translation]struct{})
+	for _, translations := range v.translations {
+		for _, translation := range translations {
+			setOfTranslations[translation] = struct{}{}
+		}
+	}
+	allTranslations := make([]Translation, 0, len(setOfTranslations))
+	for translation := range setOfTranslations {
+		allTranslations = append(allTranslations, translation)
+	}
+	sort.Slice(allTranslations, func(i, j int) bool {
+		return allTranslations[i] < allTranslations[j]
+	})
+	v.allTranslations = allTranslations
 }
 
 func (v *Vocabulary) MakeInvertedVocabulary() *Vocabulary {

@@ -31,6 +31,7 @@ type API interface {
 	SendMessage(chatID entity.ChatID, text string)
 	SendHTMLMessage(chatID entity.ChatID, text string)
 	SendProgress(user *entity.User)
+	SendLearningReports(user *entity.User)
 	UpdateInternalState(message *entity.Message)
 }
 
@@ -279,6 +280,32 @@ func (api *api) getProgressByChat(chat *entity.Chat, userProfile *entity.UserPro
 			totalTermsCount,
 		)
 	}
+}
+
+func (api *api) SendLearningReports(user *entity.User) {
+	for _, report := range api.getLearningReports(user) {
+		api.SendMessage(user.ChatID, report)
+	}
+}
+
+func (api *api) getLearningReports(user *entity.User) []string {
+	chat := api.chatManager.GetChatOrCreate(user.ChatID)
+	userProfile, _ := api.userProfileManager.GetUserProfile(user.ID)
+	listOfVocabularies := chat.GetListOfVocabularies()
+	vocabularyReports := make([]string, 0, len(listOfVocabularies))
+	for _, vocabulary := range listOfVocabularies {
+		wipVocabulary := vocabulary.GetWipVocabularyByUserProfile(userProfile)
+		newVocabulary := vocabulary.GetNewVocabularyByUserProfile(userProfile)
+		report := strings.Join([]string{
+			"Work in progress",
+			wipVocabulary.String(),
+			"",
+			"New terms",
+			newVocabulary.String(),
+		}, "\n")
+		vocabularyReports = append(vocabularyReports, report)
+	}
+	return vocabularyReports
 }
 
 func (api *api) SendAlert(text string) {
