@@ -3,6 +3,8 @@ package entity
 const (
 	fineCoefficientForCorrect = 0.1
 	fineCoefficientForMistake = 10
+	diffCoefficientForCorrect = 1
+	diffCoefficientForMistake = 2
 )
 
 type UserProfile struct {
@@ -33,7 +35,7 @@ func (p *UserProfile) GetMemorizationWeight(term Term) (float64, bool) {
 	if !foundInCorrect && !foundInMistake {
 		return 1, false
 	}
-	diff := float64(correctTranslations - mistakeTranslations)
+	diff := float64(diffCoefficientForCorrect*correctTranslations - diffCoefficientForMistake*mistakeTranslations)
 	if diff == 0 {
 		return 1, true
 	} else if diff < 0 {
