@@ -70,6 +70,13 @@ var VocabularyAdverbs = entity.NewVocabulary(
 
 var VocabularyNouns = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"toddler":       {"малыш", "ребенок", "младенец"},
+		"bank":          {"банк", "берег"},
+		"envelope":      {"конверт"},
+		"nurture":       {"воспитание", "взращивание"},
+		"beetle":        {"жук"},
+		"surgery":       {"операция", "хирургия"},
+		"gills":         {"жабры"},
 		"outcome":       {"результат", "исход", "итог", "развязка"},
 		"internship":    {"стажировка", "интернатура"},
 		"affair":        {"роман", "интрижка", "измена"},
@@ -188,6 +195,7 @@ var VocabularyVerbs = entity.NewVocabulary(
 		"slip":          {"проскользить", "проскочить"},
 		"spill":         {"пролить", "разлить"},
 		"suffer":        {"страдать", "мучиться"},
+		"relieve":       {"облегчить", "освобождать"},
 	},
 )
 
