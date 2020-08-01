@@ -5,6 +5,7 @@ import (
 	"github.com/ravil23/lingualynda/telegrambot/collection/body"
 	"github.com/ravil23/lingualynda/telegrambot/collection/gre"
 	"github.com/ravil23/lingualynda/telegrambot/collection/idioms"
+	"github.com/ravil23/lingualynda/telegrambot/collection/introductory"
 	"github.com/ravil23/lingualynda/telegrambot/collection/lesson"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline"
 	"github.com/ravil23/lingualynda/telegrambot/collection/phrasalverbs"
@@ -113,6 +114,15 @@ func (m *ChatManager) SetupChatConfiguration(chat *entity.Chat, mode entity.Chat
 			chat.SetVocabularies(gre.VocabularyRusToEng)
 		default:
 			chat.SetVocabularies(gre.AllVocabularies...)
+		}
+	case entity.ChatVocabularyTypeIntroductory:
+		switch chat.GetMode() {
+		case entity.ChatModeEngToRus:
+			chat.SetVocabularies(introductory.VocabularyEngToRus)
+		case entity.ChatModeRusToEng:
+			chat.SetVocabularies(introductory.VocabularyRusToEng)
+		default:
+			chat.SetVocabularies(introductory.AllVocabularies...)
 		}
 	default:
 		chat.SetVocabularies(collection.AllVocabularies...)

@@ -21,6 +21,7 @@ const (
 	ChatVocabularyTypeIdioms                = ChatVocabularyType("idioms")
 	ChatVocabularyTypeLesson                = ChatVocabularyType("lesson")
 	ChatVocabularyTypeGRE                   = ChatVocabularyType("gre")
+	ChatVocabularyTypeIntroductory          = ChatVocabularyType("introductory")
 
 	defaultChatMode           = ChatModeAllDirections
 	defaultChatVocabularyType = ChatVocabularyTypeAllTerms
@@ -35,6 +36,7 @@ var AllChatVocabularyTypes = []ChatVocabularyType{
 	ChatVocabularyTypeIdioms,
 	ChatVocabularyTypeLesson,
 	ChatVocabularyTypeGRE,
+	ChatVocabularyTypeIntroductory,
 }
 
 type Chat struct {
@@ -87,6 +89,8 @@ func (c *Chat) ConfigureFromText(text string) {
 		c.vocabularyType = ChatVocabularyTypeLesson
 	case fmt.Sprintf("/%s", ChatVocabularyTypeGRE):
 		c.vocabularyType = ChatVocabularyTypeGRE
+	case fmt.Sprintf("/%s", ChatVocabularyTypeIntroductory):
+		c.vocabularyType = ChatVocabularyTypeIntroductory
 	}
 }
 

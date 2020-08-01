@@ -29,6 +29,7 @@ var helpText = strings.Join([]string{
 	fmt.Sprintf("/%s - Only idioms", entity.ChatVocabularyTypeIdioms),
 	fmt.Sprintf("/%s - Only words from lesson", entity.ChatVocabularyTypeLesson),
 	fmt.Sprintf("/%s - Only words from GRE", entity.ChatVocabularyTypeGRE),
+	fmt.Sprintf("/%s - Only introductory words", entity.ChatVocabularyTypeIntroductory),
 	"",
 	"<b>Modes</b>",
 	fmt.Sprintf("/%s - All tasks", entity.ChatModeAllDirections),
