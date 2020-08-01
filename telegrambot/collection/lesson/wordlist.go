@@ -6,6 +6,8 @@ import (
 
 var VocabularyAdjectives = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"striking":       {"поразительный"},
+		"conscientious":  {"добросовестный", "сознательный"},
 		"aforementioned": {"вышеупомянутый", "указанный"},
 		"amused":         {"развеселенный"},
 		"appropriate":    {"уместный", "подходящий"},
@@ -149,6 +151,8 @@ var VocabularyNouns = entity.NewVocabulary(
 		"tears":         {"слезы"},
 		"trainee":       {"стажер", "практикант"},
 		"violence":      {"насилие", "жестокость"},
+		"leech":         {"пиявка", "кровопийца"},
+		"cupboard":      {"шкаф", "сервант", "кладовка"},
 		"well":          {"колодец"},
 	},
 )
