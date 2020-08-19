@@ -73,6 +73,9 @@ var VocabularyAdverbs = entity.NewVocabulary(
 
 var VocabularyNouns = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"bulb":          {"лампочка"},
+		"trap":          {"кран для воды"},
+		"contender":     {"претендент", "соперник", "кандидат"},
 		"exaggeration":  {"преувеличение"},
 		"shelter":       {"жилье", "приют", "убежище", "кров"},
 		"bush":          {"куст"},
