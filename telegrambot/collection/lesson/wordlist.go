@@ -6,6 +6,8 @@ import (
 
 var VocabularyAdjectives = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"medieval":       {"средневековый"},
+		"appalling":      {"ужасающий"},
 		"striking":       {"поразительный"},
 		"conscientious":  {"добросовестный", "сознательный"},
 		"aforementioned": {"вышеупомянутый", "указанный"},
@@ -73,6 +75,11 @@ var VocabularyAdverbs = entity.NewVocabulary(
 
 var VocabularyNouns = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"endurance":     {"выносливость"},
+		"tent":          {"палатка"},
+		"anniversary":   {"годовщина"},
+		"engagement":    {"помолвка"},
+		"coffin":        {"гроб"},
 		"bulb":          {"лампочка"},
 		"trap":          {"кран для воды"},
 		"contender":     {"претендент", "соперник", "кандидат"},
@@ -175,6 +182,7 @@ var VocabularyNouns = entity.NewVocabulary(
 
 var VocabularyVerbs = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"conceive":                     {"забеременеть", "постичь", "понять"},
 		"resent":                       {"возмущаться", "негодовать"},
 		"astonish":                     {"шокировать", "удивлять", "потрясать"},
 		"mime":                         {"имитировать"},
