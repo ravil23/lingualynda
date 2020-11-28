@@ -57,6 +57,7 @@ var VocabularyAdjectives = entity.NewVocabulary(
 		"ridiculous":     {"смехотворный", "смешной"},
 		"lenient":        {"мягкий", "снисходительный", "терпимый"},
 		"vibrant":        {"активный", "динамичный", "энергичный", "живой"},
+		"keen":           {"проницательный", "увлеченный"},
 	},
 )
 
@@ -71,6 +72,7 @@ var VocabularyAdverbs = entity.NewVocabulary(
 		"silly":          {"глупо"},
 		"meantime":       {"тем временем", "между тем"},
 		"thus":           {"благодаря чему", "тем самым"},
+		"from scratch":   {"с нуля", "заново", "сначала"},
 	},
 )
 
@@ -203,6 +205,8 @@ var VocabularyVerbs = entity.NewVocabulary(
 		"tighten":                      {"ужесточить", "усилить"},
 		"violate":                      {"нарушать"},
 		"bang":                         {"стукнуть", "ударить"},
+		"sense":                        {"чувствовать", "понимать", "ощущать"},
+		"sample":                       {"попробовать"},
 		"be in tears":                  {"рыдать"},
 		"betray":                       {"предать"},
 		"borrow":                       {"одолжить", "позаимствовать"},
@@ -227,7 +231,7 @@ var VocabularyVerbs = entity.NewVocabulary(
 		"suffer":                       {"страдать", "мучиться"},
 		"relieve":                      {"облегчить", "освобождать"},
 		"prejudice":                    {"предрешить", "ущемлять", "наносить ущерб"},
-		"cope with":                    {"справляться"},
+		"cope with":                    {"справляться", "справиться", "совладать", "пережить"},
 		"keep an eye out for":          {"следить за", "не спускать глаз с"},
 		"fall hopelessly in love with": {"безнадежно влюбиться в"},
 		"economical with the truth":    {"скрывать часть правды"},
