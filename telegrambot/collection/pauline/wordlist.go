@@ -2,6 +2,7 @@ package pauline
 
 import (
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit1"
+	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit10"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit2"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit3"
 	"github.com/ravil23/lingualynda/telegrambot/collection/pauline/paulineunit4"
@@ -27,7 +28,8 @@ func init() {
 		Update(paulineunit6.VocabularyEngToRus).
 		Update(paulineunit7.VocabularyEngToRus).
 		Update(paulineunit8.VocabularyEngToRus).
-		Update(paulineunit9.VocabularyEngToRus)
+		Update(paulineunit9.VocabularyEngToRus).
+		Update(paulineunit10.VocabularyEngToRus)
 	VocabularyRusToEng = entity.NewEmptyVocabulary().
 		Update(paulineunit1.VocabularyRusToEng).
 		Update(paulineunit2.VocabularyRusToEng).
@@ -37,6 +39,7 @@ func init() {
 		Update(paulineunit6.VocabularyRusToEng).
 		Update(paulineunit7.VocabularyRusToEng).
 		Update(paulineunit8.VocabularyRusToEng).
-		Update(paulineunit9.VocabularyRusToEng)
+		Update(paulineunit9.VocabularyRusToEng).
+		Update(paulineunit10.VocabularyRusToEng)
 	AllVocabularies = []*entity.Vocabulary{VocabularyEngToRus, VocabularyRusToEng}
 }
