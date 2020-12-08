@@ -59,11 +59,20 @@ var VocabularyAdjectives = entity.NewVocabulary(
 		"vibrant":          {"активный", "динамичный", "энергичный", "живой"},
 		"keen":             {"проницательный", "увлеченный"},
 		"incomprehensible": {"непонятный", "непостижимый"},
+		"impudent":         {"наглый", "нахальный"},
+		"compelling":       {"убедительный"},
+		"succinct":         {"краткий"},
+		"pertinent":        {"уместный", "имеющий отношение к делу"},
+		"genuine":          {"неподдельный"},
+		"earnest":          {"серьезный"},
+		"pushy":            {"назойливый", "напористый", "бесцеремонный"},
+		"credible":         {"заслуживающий доверия"},
 	},
 )
 
 var VocabularyAdverbs = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"tuition fees":   {"плата за обучение"},
 		"in advance":     {"заранее", "заблаговременно", "наперед"},
 		"loudly":         {"громко", "погромче", "громогласно"},
 		"plenty of":      {"полно", "предостаточно"},
@@ -190,6 +199,7 @@ var VocabularyNouns = entity.NewVocabulary(
 
 var VocabularyVerbs = entity.NewVocabulary(
 	map[entity.Term][]entity.Translation{
+		"ask a favour":                 {"попросить об одолжении", "попросить об услуге"},
 		"reinforce":                    {"укрепить", "усилить", "подкреплять"},
 		"conceive":                     {"забеременеть", "постичь", "понять"},
 		"resent":                       {"возмущаться", "негодовать"},
